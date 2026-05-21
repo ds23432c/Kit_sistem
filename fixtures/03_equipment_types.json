@@ -1,0 +1,14 @@
+[
+  {"model": "equipment.equipmenttype", "pk": 1, "fields": {"name": "Компьютер / ПК", "icon": "monitor"}},
+  {"model": "equipment.equipmenttype", "pk": 2, "fields": {"name": "Ноутбук", "icon": "laptop"}},
+  {"model": "equipment.equipmenttype", "pk": 3, "fields": {"name": "Принтер", "icon": "printer"}},
+  {"model": "equipment.equipmenttype", "pk": 4, "fields": {"name": "Проектор", "icon": "projector"}},
+  {"model": "equipment.equipmenttype", "pk": 5, "fields": {"name": "Интерактивная доска", "icon": "tablet"}},
+  {"model": "equipment.equipmenttype", "pk": 6, "fields": {"name": "МФУ", "icon": "copy"}},
+  {"model": "equipment.equipmenttype", "pk": 7, "fields": {"name": "Сервер", "icon": "server"}},
+  {"model": "equipment.equipmenttype", "pk": 8, "fields": {"name": "Сетевое оборудование", "icon": "wifi"}},
+  {"model": "equipment.equipmenttype", "pk": 9, "fields": {"name": "Монитор", "icon": "monitor"}},
+  {"model": "equipment.equipmenttype", "pk": 10, "fields": {"name": "ИБП", "icon": "battery"}},
+  {"model": "equipment.equipmenttype", "pk": 11, "fields": {"name": "Веб-камера", "icon": "camera"}},
+  {"model": "equipment.equipmenttype", "pk": 12, "fields": {"name": "Прочее", "icon": "package"}}
+]

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block page_title %}Акты списания{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+  <a href="{% url 'writeoff_export' %}" class="btn btn-primary"><i data-lucide="download" width="16" height="16"></i> Скачать акт Word</a>
+</div>
+<div class="table-card">
+  <table><thead><tr><th>Оборудование</th><th>Рег. номер</th><th>Причина</th><th>Кем списано</th><th>Дата</th></tr></thead>
+  <tbody>{% for w in writeoffs %}
+  <tr>
+    <td>{{ w.equipment.brand }} {{ w.equipment.model }}</td>
+    <td class="font-mono">{{ w.equipment.reg_number }}</td>
+    <td style="max-width:300px">{{ w.reason|truncatechars:100 }}</td>
+    <td>{{ w.created_by|default:"—" }}</td>
+    <td class="text-secondary">{{ w.created_at|date:"d.m.Y" }}</td>
+  </tr>
+  {% empty %}<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-secondary)">Актов списания нет</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

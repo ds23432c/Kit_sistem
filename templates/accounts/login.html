@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вход — EduAsset</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;display:flex;height:100vh}
+.left{flex:0 0 420px;padding:48px;display:flex;flex-direction:column;justify-content:center;background:white}
+.right{flex:1;background:linear-gradient(135deg,#1F3864 0%,#2E75B6 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px}
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:40px}
+.logo-icon{width:44px;height:44px;background:#2E75B6;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.logo-text{font-size:22px;font-weight:700;color:#1A1A2E}
+h1{font-size:26px;font-weight:700;margin-bottom:8px;color:#1A1A2E}
+.sub{color:#6B7280;font-size:14px;margin-bottom:32px}
+.fg{margin-bottom:18px}label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:#374151}
+input{width:100%;padding:10px 14px;border:1.5px solid #E5E7EB;border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+input:focus{border-color:#2E75B6;box-shadow:0 0 0 3px rgba(46,117,182,.15)}
+.btn{width:100%;padding:11px;background:#2E75B6;color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px}
+.btn:hover{background:#255F99}.err{background:#FEE2E2;color:#DC2626;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.rt{color:white;font-size:22px;font-weight:700;text-align:center;margin-bottom:12px}
+.rs{color:rgba(255,255,255,.65);text-align:center;font-size:14px;max-width:280px;line-height:1.6}
+.feat{margin-top:32px;display:flex;flex-direction:column;gap:12px}
+.feat-i{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.8);font-size:13px}
+.dot{width:8px;height:8px;background:rgba(255,255,255,.5);border-radius:50%;flex-shrink:0}
+@media(max-width:768px){.right{display:none}.left{flex:1}}
+</style></head><body>
+<div class="left">
+  <div class="logo">
+    <div class="logo-icon"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+    <div class="logo-text">EduAsset</div>
+  </div>
+  <h1>Добро пожаловать</h1>
+  <div class="sub">Система мониторинга IT-оборудования</div>
+  {% for message in messages %}<div class="err">{{ message }}</div>{% endfor %}
+  <form method="post">{% csrf_token %}
+    <div class="fg"><label>Логин</label><input type="text" name="username" placeholder="Введите логин" required autofocus></div>
+    <div class="fg"><label>Пароль</label><input type="password" name="password" placeholder="Введите пароль" required></div>
+    <button type="submit" class="btn">Войти</button>
+  </form>
+</div>
+<div class="right">
+  <div class="rt">Полный контроль над<br>IT-инфраструктурой</div>
+  <div class="rs">Отслеживайте состояние оборудования, управляйте кабинетами и ремонтом</div>
+  <div class="feat">
+    <div class="feat-i"><div class="dot"></div>Интерактивная карта здания</div>
+    <div class="feat-i"><div class="dot"></div>Учёт и мониторинг оборудования</div>
+    <div class="feat-i"><div class="dot"></div>Заявки на ремонт онлайн</div>
+    <div class="feat-i"><div class="dot"></div>Отчёты для бухгалтерии и 1С</div>
+  </div>
+</div>
+</body></html>

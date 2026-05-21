@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ room.name }}{% endblock %}
+{% block content %}
+<div class="breadcrumbs">
+  <a href="{% url 'floor_list' %}">Здание</a><span>/</span>
+  <a href="{% url 'floor_list' %}">Этаж {{ room.floor.number }}</a><span>/</span>
+  <span>{{ room.name }}</span>
+</div>
+<div class="flex-between mb-20">
+  <div style="display:flex;align-items:center;gap:12px">
+    <h2>Кабинет {{ room.number }} — {{ room.name }}</h2>
+    <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:{% if room.status_color == 'green' %}var(--green){% elif room.status_color == 'red' %}var(--red){% elif room.status_color == 'yellow' %}var(--yellow){% else %}var(--gray){% endif %}"></span>
+  </div>
+  <div style="display:flex;gap:8px">
+    {% if request.user.role in 'admin,keeper' %}
+    <a href="{% url 'equipment_add' %}?room={{ room.pk }}" class="btn btn-primary btn-sm"><i data-lucide="plus" width="14" height="14"></i> Добавить</a>
+    <a href="{% url 'request_create' %}?room={{ room.pk }}" class="btn btn-secondary btn-sm"><i data-lucide="wrench" width="14" height="14"></i> Заявка</a>
+    {% endif %}
+    {% if request.user.role == 'keeper' %}
+    <a href="{% url 'change_request_create' %}?room={{ room.pk }}" class="btn btn-ghost btn-sm">Запросить изменение</a>
+    {% endif %}
+    {% if request.user.role == 'admin' %}
+    <a href="{% url 'create_keeper' room.pk %}" class="btn btn-ghost btn-sm"><i data-lucide="user-plus" width="14" height="14"></i> Заведующий</a>
+    {% endif %}
+  </div>
+</div>
+{% if room.keepers.exists %}
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+  <span class="text-secondary">Заведующие:</span>
+  {% for keeper in room.keepers.all %}
+  <div style="display:flex;align-items:center;gap:6px;background:var(--bg);padding:4px 12px;border-radius:20px">
+    <div class="user-avatar" style="width:24px;height:24px;font-size:10px">{{ keeper.first_name|first }}{{ keeper.last_name|first }}</div>
+    <span style="font-size:13px">{{ keeper.get_full_name }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+<div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+  <div class="kpi-card"><div class="kpi-icon" style="background:#DBEAFE"><i data-lucide="monitor" width="20" height="20" style="color:#1D4ED8"></i></div><div><div class="kpi-label">Всего</div><div class="kpi-value" style="font-size:22px">{{ stats.total }}</div></div></div>
+  <div class="kpi-card"><div class="kpi-icon" style="background:var(--green-bg)"><i data-lucide="check" width="20" height="20" style="color:var(--green)"></i></div><div><div class="kpi-label">Исправно</div><div class="kpi-value" style="font-size:22px;color:var(--green)">{{ stats.ok }}</div></div></div>
+  <div class="kpi-card"><div class="kpi-icon" style="background:var(--red-bg)"><i data-lucide="x" width="20" height="20" style="color:var(--red)"></i></div><div><div class="kpi-label">Неисправно</div><div class="kpi-value" style="font-size:22px;color:var(--red)">{{ stats.broken }}</div></div></div>
+  <div class="kpi-card"><div class="kpi-icon" style="background:var(--yellow-bg)"><i data-lucide="tool" width="20" height="20" style="color:var(--yellow)"></i></div><div><div class="kpi-label">В ремонте</div><div class="kpi-value" style="font-size:22px;color:var(--yellow)">{{ stats.repair }}</div></div></div>
+</div>
+<div class="filters-bar">
+  <form method="get" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%">
+    <input class="form-input" name="search" placeholder="Поиск по марке/модели/рег.номеру" value="{{ request.GET.search }}">
+    <select class="form-select" name="condition"><option value="">Все состояния</option>{% for v,l in item.CONDITION_CHOICES|default:"" %}{% endfor %}<option value="ok"{% if request.GET.condition == 'ok' %} selected{% endif %}>Исправно</option><option value="broken"{% if request.GET.condition == 'broken' %} selected{% endif %}>Неисправно</option><option value="repair"{% if request.GET.condition == 'repair' %} selected{% endif %}>В ремонте</option><option value="written_off"{% if request.GET.condition == 'written_off' %} selected{% endif %}>Списано</option></select>
+    <button type="submit" class="btn btn-primary btn-sm">Фильтр</button>
+    <a href="{% url 'room_detail' room.pk %}" class="btn btn-ghost btn-sm">Сбросить</a>
+  </form>
+</div>
+<div class="table-card">
+  <table>
+    <thead><tr><th>Рег. номер</th><th>Марка / Модель</th><th>Вид</th><th>Состояние</th><th>На месте</th><th>Проверка</th>{% if request.user.role in 'admin,accountant' %}<th>Стоимость</th>{% endif %}<th>Действия</th></tr></thead>
+    <tbody>
+    {% for item in equipment %}
+    <tr {% if item.is_overdue %}style="background:#FFF7F7"{% endif %}>
+      <td class="font-mono"><a href="{% url 'equipment_detail' item.pk %}" style="color:var(--blue-mid)">{{ item.reg_number }}</a></td>
+      <td><div style="font-weight:500">{{ item.brand }}</div><div class="text-secondary" style="font-size:12px">{{ item.model }}</div></td>
+      <td class="text-secondary">{{ item.equipment_type.name|default:"—" }}</td>
+      <td><span class="badge badge-{{ item.condition_badge }}">{{ item.get_condition_display }}</span></td>
+      <td>{% if item.is_present %}<span class="badge badge-green">Да</span>{% else %}<span class="badge badge-orange">Нет</span>{% endif %}</td>
+      <td class="text-secondary" style="font-size:12px">
+        {% if item.next_check_date %}
+          {% if item.is_overdue %}<span style="color:var(--red)">{{ item.next_check_date|date:"d.m.Y" }} ⚠</span>
+          {% else %}{{ item.next_check_date|date:"d.m.Y" }}{% endif %}
+        {% else %}—{% endif %}
+      </td>
+      {% if request.user.role in 'admin,accountant' %}<td>{% if item.cost %}{{ item.cost|floatformat:0 }} ₽{% else %}—{% endif %}</td>{% endif %}
+      <td>
+        <a href="{% url 'equipment_detail' item.pk %}" class="btn btn-ghost btn-sm"><i data-lucide="eye" width="14" height="14"></i></a>
+        {% if request.user.role != 'technician' %}<a href="{% url 'equipment_edit' item.pk %}" class="btn btn-ghost btn-sm"><i data-lucide="edit-2" width="14" height="14"></i></a>{% endif %}
+      </td>
+    </tr>
+    {% empty %}<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-secondary)">Оборудование не найдено</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

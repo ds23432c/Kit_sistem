@@ -1,0 +1,302 @@
+[
+  {
+    "model": "equipment.equipment", "pk": 1,
+    "fields": {
+      "reg_number": "ПК-101-001", "brand": "Lenovo", "model": "ThinkCentre M720",
+      "specs": "Intel Core i5-9400, 8GB DDR4, 256GB SSD, Intel UHD 630",
+      "quantity": 1, "equipment_type": 1, "room": 1,
+      "condition": "ok", "is_present": true,
+      "date_added": "2022-09-01", "last_check_date": "2024-11-01", "next_check_date": "2025-11-01",
+      "cost": "42000.00", "photo": null,
+      "created_by": 1, "created_at": "2022-09-01T08:00:00Z", "updated_at": "2024-11-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 2,
+    "fields": {
+      "reg_number": "ПК-101-002", "brand": "Lenovo", "model": "ThinkCentre M720",
+      "specs": "Intel Core i5-9400, 8GB DDR4, 256GB SSD, Intel UHD 630",
+      "quantity": 1, "equipment_type": 1, "room": 1,
+      "condition": "ok", "is_present": true,
+      "date_added": "2022-09-01", "last_check_date": "2024-11-01", "next_check_date": "2025-11-01",
+      "cost": "42000.00", "photo": null,
+      "created_by": 1, "created_at": "2022-09-01T08:00:00Z", "updated_at": "2024-11-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 3,
+    "fields": {
+      "reg_number": "ПК-101-003", "brand": "HP", "model": "EliteDesk 800 G5",
+      "specs": "Intel Core i7-9700, 16GB DDR4, 512GB SSD, Intel UHD 630",
+      "quantity": 1, "equipment_type": 1, "room": 1,
+      "condition": "repair", "is_present": false,
+      "date_added": "2022-09-01", "last_check_date": "2024-10-15", "next_check_date": "2025-10-15",
+      "cost": "56000.00", "photo": null,
+      "created_by": 1, "created_at": "2022-09-01T08:00:00Z", "updated_at": "2024-10-15T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 4,
+    "fields": {
+      "reg_number": "МОН-101-001", "brand": "Samsung", "model": "S24E450F",
+      "specs": "24\", 1920x1080, VA, 60Hz, VGA+HDMI",
+      "quantity": 1, "equipment_type": 9, "room": 1,
+      "condition": "ok", "is_present": true,
+      "date_added": "2022-09-01", "last_check_date": "2024-11-01", "next_check_date": "2025-11-01",
+      "cost": "18500.00", "photo": null,
+      "created_by": 1, "created_at": "2022-09-01T08:00:00Z", "updated_at": "2024-11-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 5,
+    "fields": {
+      "reg_number": "ПРН-101-001", "brand": "Canon", "model": "imageCLASS LBP6030",
+      "specs": "Лазерный ч/б, A4, 18 стр/мин, USB",
+      "quantity": 1, "equipment_type": 3, "room": 1,
+      "condition": "ok", "is_present": true,
+      "date_added": "2023-01-15", "last_check_date": "2024-11-01", "next_check_date": "2025-11-01",
+      "cost": "9800.00", "photo": null,
+      "created_by": 1, "created_at": "2023-01-15T08:00:00Z", "updated_at": "2024-11-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 6,
+    "fields": {
+      "reg_number": "ПК-102-001", "brand": "Dell", "model": "OptiPlex 7080",
+      "specs": "Intel Core i5-10500, 8GB DDR4, 256GB SSD",
+      "quantity": 1, "equipment_type": 1, "room": 2,
+      "condition": "ok", "is_present": true,
+      "date_added": "2023-02-01", "last_check_date": "2024-09-10", "next_check_date": "2025-09-10",
+      "cost": "48000.00", "photo": null,
+      "created_by": 1, "created_at": "2023-02-01T08:00:00Z", "updated_at": "2024-09-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 7,
+    "fields": {
+      "reg_number": "ПК-102-002", "brand": "Dell", "model": "OptiPlex 7080",
+      "specs": "Intel Core i5-10500, 8GB DDR4, 256GB SSD",
+      "quantity": 1, "equipment_type": 1, "room": 2,
+      "condition": "broken", "is_present": true,
+      "date_added": "2023-02-01", "last_check_date": "2024-09-10", "next_check_date": "2025-09-10",
+      "cost": "48000.00", "photo": null,
+      "created_by": 1, "created_at": "2023-02-01T08:00:00Z", "updated_at": "2024-09-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 8,
+    "fields": {
+      "reg_number": "ПРЕ-102-001", "brand": "Epson", "model": "EB-X41",
+      "specs": "XGA 1024x768, 3600 лм, VGA+HDMI, пульт ДУ",
+      "quantity": 1, "equipment_type": 4, "room": 2,
+      "condition": "ok", "is_present": true,
+      "date_added": "2022-08-20", "last_check_date": "2024-08-20", "next_check_date": "2025-08-20",
+      "cost": "35000.00", "photo": null,
+      "created_by": 1, "created_at": "2022-08-20T08:00:00Z", "updated_at": "2024-08-20T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 9,
+    "fields": {
+      "reg_number": "ДОС-102-001", "brand": "Smart", "model": "SBID-MX286",
+      "specs": "Интерактивная доска 86\", 4K, мультитач 20 точек",
+      "quantity": 1, "equipment_type": 5, "room": 2,
+      "condition": "ok", "is_present": true,
+      "date_added": "2023-06-01", "last_check_date": "2024-06-01", "next_check_date": "2025-06-01",
+      "cost": "185000.00", "photo": null,
+      "created_by": 1, "created_at": "2023-06-01T08:00:00Z", "updated_at": "2024-06-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 10,
+    "fields": {
+      "reg_number": "МФУ-103-001", "brand": "Brother", "model": "MFC-L2750DW",
+      "specs": "Лазерный МФУ, A4, 34 стр/мин, WiFi, дуплекс",
+      "quantity": 1, "equipment_type": 6, "room": 3,
+      "condition": "ok", "is_present": true,
+      "date_added": "2022-09-01", "last_check_date": "2024-09-01", "next_check_date": "2025-09-01",
+      "cost": "22000.00", "photo": null,
+      "created_by": 1, "created_at": "2022-09-01T08:00:00Z", "updated_at": "2024-09-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 11,
+    "fields": {
+      "reg_number": "НОУ-103-001", "brand": "Asus", "model": "ExpertBook B1400",
+      "specs": "Intel Core i5-1135G7, 8GB, 256GB SSD, 14\", WiFi6",
+      "quantity": 1, "equipment_type": 2, "room": 3,
+      "condition": "ok", "is_present": true,
+      "date_added": "2023-01-10", "last_check_date": "2024-10-10", "next_check_date": "2025-10-10",
+      "cost": "67000.00", "photo": null,
+      "created_by": 1, "created_at": "2023-01-10T08:00:00Z", "updated_at": "2024-10-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 12,
+    "fields": {
+      "reg_number": "ПК-201-001", "brand": "Lenovo", "model": "IdeaCentre 5i",
+      "specs": "Intel Core i5-10400, 8GB DDR4, 512GB SSD",
+      "quantity": 1, "equipment_type": 1, "room": 4,
+      "condition": "broken", "is_present": true,
+      "date_added": "2022-09-05", "last_check_date": "2024-01-10", "next_check_date": "2024-07-10",
+      "cost": "39000.00", "photo": null,
+      "created_by": 1, "created_at": "2022-09-05T08:00:00Z", "updated_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 13,
+    "fields": {
+      "reg_number": "ПК-201-002", "brand": "Lenovo", "model": "IdeaCentre 5i",
+      "specs": "Intel Core i5-10400, 8GB DDR4, 512GB SSD",
+      "quantity": 1, "equipment_type": 1, "room": 4,
+      "condition": "ok", "is_present": true,
+      "date_added": "2022-09-05", "last_check_date": "2024-11-05", "next_check_date": "2025-11-05",
+      "cost": "39000.00", "photo": null,
+      "created_by": 1, "created_at": "2022-09-05T08:00:00Z", "updated_at": "2024-11-05T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 14,
+    "fields": {
+      "reg_number": "НОУ-202-001", "brand": "HP", "model": "ProBook 445 G8",
+      "specs": "AMD Ryzen 5 5600U, 16GB, 512GB SSD, 14\", Win 11 Pro",
+      "quantity": 1, "equipment_type": 2, "room": 5,
+      "condition": "ok", "is_present": true,
+      "date_added": "2023-03-01", "last_check_date": "2024-09-01", "next_check_date": "2025-09-01",
+      "cost": "72000.00", "photo": null,
+      "created_by": 1, "created_at": "2023-03-01T08:00:00Z", "updated_at": "2024-09-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 15,
+    "fields": {
+      "reg_number": "МОН-202-001", "brand": "LG", "model": "27BN650Y",
+      "specs": "27\", 1920x1080, IPS, 75Hz, HDMI+DP, встр. динамики",
+      "quantity": 1, "equipment_type": 9, "room": 5,
+      "condition": "ok", "is_present": true,
+      "date_added": "2023-03-01", "last_check_date": "2024-09-01", "next_check_date": "2025-09-01",
+      "cost": "23500.00", "photo": null,
+      "created_by": 1, "created_at": "2023-03-01T08:00:00Z", "updated_at": "2024-09-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 16,
+    "fields": {
+      "reg_number": "ПРН-203-001", "brand": "HP", "model": "LaserJet Pro M404n",
+      "specs": "Лазерный ч/б A4, 38 стр/мин, USB+Ethernet",
+      "quantity": 1, "equipment_type": 3, "room": 6,
+      "condition": "ok", "is_present": true,
+      "date_added": "2022-10-01", "last_check_date": "2024-10-01", "next_check_date": "2025-10-01",
+      "cost": "17800.00", "photo": null,
+      "created_by": 1, "created_at": "2022-10-01T08:00:00Z", "updated_at": "2024-10-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 17,
+    "fields": {
+      "reg_number": "НОУ-203-001", "brand": "Lenovo", "model": "ThinkPad E14 Gen 3",
+      "specs": "AMD Ryzen 5 5500U, 8GB, 256GB SSD, 14\", IPS",
+      "quantity": 1, "equipment_type": 2, "room": 6,
+      "condition": "ok", "is_present": true,
+      "date_added": "2023-05-10", "last_check_date": "2024-11-10", "next_check_date": "2025-11-10",
+      "cost": "69000.00", "photo": null,
+      "created_by": 1, "created_at": "2023-05-10T08:00:00Z", "updated_at": "2024-11-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 18,
+    "fields": {
+      "reg_number": "ПРЕ-301-001", "brand": "BenQ", "model": "MW535",
+      "specs": "WXGA 1280x800, 3600 лм, HDMI, Wi-Fi модуль",
+      "quantity": 1, "equipment_type": 4, "room": 7,
+      "condition": "repair", "is_present": false,
+      "date_added": "2022-08-01", "last_check_date": "2024-08-01", "next_check_date": "2025-08-01",
+      "cost": "32000.00", "photo": null,
+      "created_by": 1, "created_at": "2022-08-01T08:00:00Z", "updated_at": "2024-08-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 19,
+    "fields": {
+      "reg_number": "СРВ-302-001", "brand": "Dell", "model": "PowerEdge T40",
+      "specs": "Intel Xeon E-2224G, 16GB ECC, 2TB SATA, RAID 1",
+      "quantity": 1, "equipment_type": 7, "room": 8,
+      "condition": "ok", "is_present": true,
+      "date_added": "2021-09-01", "last_check_date": "2024-09-01", "next_check_date": "2025-09-01",
+      "cost": "125000.00", "photo": null,
+      "created_by": 1, "created_at": "2021-09-01T08:00:00Z", "updated_at": "2024-09-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 20,
+    "fields": {
+      "reg_number": "СЕТ-302-001", "brand": "Cisco", "model": "SG110-24",
+      "specs": "Коммутатор 24-порт Gigabit, неуправляемый, 1U",
+      "quantity": 1, "equipment_type": 8, "room": 8,
+      "condition": "ok", "is_present": true,
+      "date_added": "2021-09-01", "last_check_date": "2024-09-01", "next_check_date": "2025-09-01",
+      "cost": "18000.00", "photo": null,
+      "created_by": 1, "created_at": "2021-09-01T08:00:00Z", "updated_at": "2024-09-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 21,
+    "fields": {
+      "reg_number": "ИБП-302-001", "brand": "APC", "model": "Smart-UPS 1500",
+      "specs": "1500VA/1000W, USB, 6 розеток, LCD дисплей",
+      "quantity": 1, "equipment_type": 10, "room": 8,
+      "condition": "ok", "is_present": true,
+      "date_added": "2021-09-01", "last_check_date": "2024-09-01", "next_check_date": "2025-09-01",
+      "cost": "35000.00", "photo": null,
+      "created_by": 1, "created_at": "2021-09-01T08:00:00Z", "updated_at": "2024-09-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 22,
+    "fields": {
+      "reg_number": "ПРЕ-104-001", "brand": "Epson", "model": "EB-S41",
+      "specs": "SVGA 800x600, 3300 лм, HDMI, Lamp 6000ч",
+      "quantity": 1, "equipment_type": 4, "room": 9,
+      "condition": "ok", "is_present": true,
+      "date_added": "2022-08-01", "last_check_date": "2024-10-01", "next_check_date": "2025-10-01",
+      "cost": "28000.00", "photo": null,
+      "created_by": 1, "created_at": "2022-08-01T08:00:00Z", "updated_at": "2024-10-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 23,
+    "fields": {
+      "reg_number": "ПК-104-001", "brand": "Asus", "model": "ExpertCenter D5",
+      "specs": "Intel Core i3-10105, 8GB DDR4, 256GB SSD",
+      "quantity": 1, "equipment_type": 1, "room": 9,
+      "condition": "ok", "is_present": true,
+      "date_added": "2023-09-01", "last_check_date": "2024-09-01", "next_check_date": "2025-09-01",
+      "cost": "35000.00", "photo": null,
+      "created_by": 1, "created_at": "2023-09-01T08:00:00Z", "updated_at": "2024-09-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 24,
+    "fields": {
+      "reg_number": "КАМ-204-001", "brand": "Logitech", "model": "C920 HD Pro",
+      "specs": "Full HD 1080p, 30fps, встр. микрофон, USB",
+      "quantity": 1, "equipment_type": 11, "room": 10,
+      "condition": "written_off", "is_present": false,
+      "date_added": "2020-01-01", "last_check_date": "2023-01-01", "next_check_date": "2024-01-01",
+      "cost": "7500.00", "photo": null,
+      "created_by": 1, "created_at": "2020-01-01T08:00:00Z", "updated_at": "2024-01-01T08:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment", "pk": 25,
+    "fields": {
+      "reg_number": "МФУ-204-001", "brand": "Xerox", "model": "WorkCentre 3345",
+      "specs": "Лазерный МФУ A4, 40 стр/мин, дуплекс, WiFi+Ethernet",
+      "quantity": 1, "equipment_type": 6, "room": 10,
+      "condition": "ok", "is_present": true,
+      "date_added": "2023-04-01", "last_check_date": "2024-10-01", "next_check_date": "2025-10-01",
+      "cost": "31000.00", "photo": null,
+      "created_by": 1, "created_at": "2023-04-01T08:00:00Z", "updated_at": "2024-10-01T08:00:00Z"
+    }
+  }
+]

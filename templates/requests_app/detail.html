@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block page_title %}Заявка {{ req.number }}{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'request_list' %}">Заявки</a><span>/</span><span>{{ req.number }}</span></div>
+<div class="grid-2">
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:16px">
+      <h2>Заявка {{ req.number }}</h2>
+      <div style="display:flex;gap:8px">
+        <a href="{% url 'request_download_docx' req.pk %}" class="btn btn-secondary btn-sm"><i data-lucide="download" width="14" height="14"></i> Word</a>
+      </div>
+    </div>
+    {% if req.photo %}<img src="{{ req.photo.url }}" style="width:100%;border-radius:8px;margin-bottom:16px;max-height:200px;object-fit:cover">{% endif %}
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Статус</span><span class="badge badge-{{ req.status_color }}">{{ req.get_status_display }}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Приоритет</span><span class="badge badge-{% if req.priority == 'high' %}red{% elif req.priority == 'medium' %}yellow{% else %}gray{% endif %}">{{ req.get_priority_display }}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Кабинет</span><a href="{% url 'room_detail' req.room.pk %}" style="color:var(--blue-mid)">{{ req.room }}</a></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Оборудование</span><span>{{ req.equipment|default:"—" }}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Заявитель</span><span>{{ req.created_by.get_full_name|default:req.created_by }}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Дата</span><span>{{ req.created_at|date:"d.m.Y H:i" }}</span></div>
+      {% if req.assigned_to %}<div style="display:flex;justify-content:space-between;padding:8px 0"><span class="text-secondary">Назначен</span><span>{{ req.assigned_to.get_full_name }}</span></div>{% endif %}
+    </div>
+    <div style="margin-top:16px;background:var(--bg);border-radius:8px;padding:12px">
+      <div class="text-secondary" style="font-size:12px;margin-bottom:6px">Описание неисправности</div>
+      <div>{{ req.description }}</div>
+    </div>
+    {% if req.ahc_response %}
+    <div style="margin-top:12px;background:#EFF6FF;border-radius:8px;padding:12px">
+      <div style="font-size:12px;margin-bottom:6px;color:var(--blue-mid)">Ответ Зам. АХЧ</div>
+      <div>{{ req.ahc_response }}</div>
+    </div>
+    {% endif %}
+  </div>
+  {% if request.user.role in 'admin,ahc,technician' %}
+  <div class="card">
+    <h3 style="margin-bottom:16px">Управление заявкой</h3>
+    <form method="post" action="{% url 'request_update_status' req.pk %}">{% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Статус</label>
+        <select name="status" class="form-select">
+          {% for v,l in req.STATUS_CHOICES %}<option value="{{ v }}"{% if req.status == v %} selected{% endif %}>{{ l }}</option>{% endfor %}
+        </select>
+      </div>
+      {% if request.user.role in 'admin,ahc' %}
+      <div class="form-group">
+        <label class="form-label">Назначить технику</label>
+        <select name="assigned_to" class="form-select">
+          <option value="">— не назначен —</option>
+          {% for t in technicians %}<option value="{{ t.pk }}"{% if req.assigned_to == t %} selected{% endif %}>{{ t.get_full_name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ответ / Комментарий</label>
+        <textarea name="ahc_response" class="form-textarea" placeholder="Комментарий для заявителя...">{{ req.ahc_response }}</textarea>
+      </div>
+      {% endif %}
+      <button type="submit" class="btn btn-primary">Обновить</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+[
+  {
+    "model": "core.building",
+    "pk": 1,
+    "fields": {
+      "name": "Главный корпус",
+      "address": "г. Москва, ул. Учебная, д. 15",
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.floor",
+    "pk": 1,
+    "fields": { "building": 1, "number": 1, "name": "Первый этаж", "map_data": {} }
+  },
+  {
+    "model": "core.floor",
+    "pk": 2,
+    "fields": { "building": 1, "number": 2, "name": "Второй этаж", "map_data": {} }
+  },
+  {
+    "model": "core.floor",
+    "pk": 3,
+    "fields": { "building": 1, "number": 3, "name": "Третий этаж", "map_data": {} }
+  },
+  {
+    "model": "core.room",
+    "pk": 1,
+    "fields": {
+      "floor": 1, "number": "101",
+      "name": "Компьютерный класс №1",
+      "shape_data": {"x": 20, "y": 20, "w": 170, "h": 100, "room_id": 1, "status_color": "green"},
+      "keepers": [3],
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.room",
+    "pk": 2,
+    "fields": {
+      "floor": 1, "number": "102",
+      "name": "Кабинет информатики",
+      "shape_data": {"x": 210, "y": 20, "w": 170, "h": 100, "room_id": 2, "status_color": "yellow"},
+      "keepers": [4],
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.room",
+    "pk": 3,
+    "fields": {
+      "floor": 1, "number": "103",
+      "name": "Библиотека",
+      "shape_data": {"x": 400, "y": 20, "w": 170, "h": 100, "room_id": 3, "status_color": "green"},
+      "keepers": [5],
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.room",
+    "pk": 4,
+    "fields": {
+      "floor": 2, "number": "201",
+      "name": "Компьютерный класс №2",
+      "shape_data": {"x": 20, "y": 20, "w": 170, "h": 100, "room_id": 4, "status_color": "red"},
+      "keepers": [3],
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.room",
+    "pk": 5,
+    "fields": {
+      "floor": 2, "number": "202",
+      "name": "Кабинет директора",
+      "shape_data": {"x": 210, "y": 20, "w": 170, "h": 100, "room_id": 5, "status_color": "green"},
+      "keepers": [],
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.room",
+    "pk": 6,
+    "fields": {
+      "floor": 2, "number": "203",
+      "name": "Учительская",
+      "shape_data": {"x": 400, "y": 20, "w": 170, "h": 100, "room_id": 6, "status_color": "green"},
+      "keepers": [4],
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.room",
+    "pk": 7,
+    "fields": {
+      "floor": 3, "number": "301",
+      "name": "Медиацентр",
+      "shape_data": {"x": 20, "y": 20, "w": 170, "h": 100, "room_id": 7, "status_color": "yellow"},
+      "keepers": [5],
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.room",
+    "pk": 8,
+    "fields": {
+      "floor": 3, "number": "302",
+      "name": "Серверная",
+      "shape_data": {"x": 210, "y": 20, "w": 170, "h": 100, "room_id": 8, "status_color": "green"},
+      "keepers": [],
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.room",
+    "pk": 9,
+    "fields": {
+      "floor": 1, "number": "104",
+      "name": "Кабинет физики",
+      "shape_data": {"x": 590, "y": 20, "w": 170, "h": 100, "room_id": 9, "status_color": "green"},
+      "keepers": [4],
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.room",
+    "pk": 10,
+    "fields": {
+      "floor": 2, "number": "204",
+      "name": "Кабинет химии",
+      "shape_data": {"x": 590, "y": 20, "w": 170, "h": 100, "room_id": 10, "status_color": "green"},
+      "keepers": [5],
+      "created_at": "2024-01-10T08:00:00Z"
+    }
+  }
+]

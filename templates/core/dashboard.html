@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Дашборд — EduAsset{% endblock %}
+{% block page_title %}Дашборд{% endblock %}
+{% block content %}
+{% if request.user.role == 'admin' or request.user.role == 'ahc' %}
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:#DBEAFE"><i data-lucide="monitor" width="24" height="24" style="color:#1D4ED8"></i></div>
+    <div><div class="kpi-label">Всего оборудования</div><div class="kpi-value">{{ total }}</div></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--green-bg)"><i data-lucide="check-circle" width="24" height="24" style="color:var(--green)"></i></div>
+    <div><div class="kpi-label">Исправно</div><div class="kpi-value" style="color:var(--green)">{{ ok }}</div></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--red-bg)"><i data-lucide="alert-circle" width="24" height="24" style="color:var(--red)"></i></div>
+    <div><div class="kpi-label">Неисправно</div><div class="kpi-value" style="color:var(--red)">{{ broken }}</div></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:var(--yellow-bg)"><i data-lucide="tool" width="24" height="24" style="color:var(--yellow)"></i></div>
+    <div><div class="kpi-label">В ремонте</div><div class="kpi-value" style="color:var(--yellow)">{{ repair }}</div></div>
+  </div>
+</div>
+<div class="grid-2">
+  <div class="table-card">
+    <div class="table-header"><div class="table-title">Последние заявки на ремонт</div><a href="{% url 'request_list' %}" class="btn btn-ghost btn-sm">Все заявки</a></div>
+    <table><thead><tr><th>Номер</th><th>Кабинет</th><th>Статус</th><th>Дата</th></tr></thead>
+    <tbody>{% for r in recent_requests %}
+    <tr><td><a href="{% url 'request_detail' r.pk %}" style="color:var(--blue-mid);font-weight:500">{{ r.number }}</a></td>
+    <td>{{ r.room }}</td>
+    <td><span class="badge badge-{{ r.status_color }}">{{ r.get_status_display }}</span></td>
+    <td class="text-secondary">{{ r.created_at|date:"d.m.Y" }}</td></tr>
+    {% empty %}<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-secondary)">Заявок нет</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="table-card">
+    <div class="table-header"><div class="table-title">Кабинеты с просроченной проверкой</div></div>
+    <table><thead><tr><th>Кабинет</th><th>Этаж</th><th></th></tr></thead>
+    <tbody>{% for room in overdue_rooms %}
+    <tr><td>{{ room.name }}</td><td>{{ room.floor }}</td>
+    <td><a href="{% url 'room_detail' room.pk %}" class="btn btn-ghost btn-sm"><i data-lucide="arrow-right" width="14" height="14"></i></a></td></tr>
+    {% empty %}<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-secondary)">Просроченных нет</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+<div class="table-card mt-20">
+  <div class="table-header"><div class="table-title">Последние изменения</div><a href="{% url 'changelog' %}" class="btn btn-ghost btn-sm">Полный лог</a></div>
+  <table><thead><tr><th>Действие</th><th>Пользователь</th><th>Дата</th></tr></thead>
+  <tbody>{% for log in recent_logs %}
+  <tr><td>{{ log.action }}</td><td>{{ log.user }}</td><td class="text-secondary">{{ log.created_at|date:"d.m.Y H:i" }}</td></tr>
+  {% empty %}<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-secondary)">Изменений нет</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% elif request.user.role == 'keeper' %}
+<div class="kpi-grid">
+  <div class="kpi-card"><div class="kpi-icon" style="background:#DBEAFE"><i data-lucide="monitor" width="24" height="24" style="color:#1D4ED8"></i></div><div><div class="kpi-label">Всего</div><div class="kpi-value">{{ total }}</div></div></div>
+  <div class="kpi-card"><div class="kpi-icon" style="background:var(--red-bg)"><i data-lucide="alert-circle" width="24" height="24" style="color:var(--red)"></i></div><div><div class="kpi-label">Неисправно</div><div class="kpi-value" style="color:var(--red)">{{ broken }}</div></div></div>
+  <div class="kpi-card"><div class="kpi-icon" style="background:var(--yellow-bg)"><i data-lucide="tool" width="24" height="24" style="color:var(--yellow)"></i></div><div><div class="kpi-label">В ремонте</div><div class="kpi-value" style="color:var(--yellow)">{{ repair }}</div></div></div>
+</div>
+<div style="display:flex;gap:12px;margin-bottom:20px">
+  <a href="{% url 'request_create' %}" class="btn btn-primary"><i data-lucide="plus" width="16" height="16"></i> Создать заявку</a>
+  <a href="{% url 'change_request_create' %}" class="btn btn-secondary"><i data-lucide="edit" width="16" height="16"></i> Запросить изменение</a>
+</div>
+{% for room in rooms %}
+<div class="card mb-20">
+  <div class="flex-between" style="margin-bottom:12px">
+    <h3>{{ room.name }} (каб. {{ room.number }})</h3>
+    <a href="{% url 'room_detail' room.pk %}" class="btn btn-ghost btn-sm">Открыть</a>
+  </div>
+</div>
+{% endfor %}
+{% elif request.user.role == 'accountant' %}
+<div class="kpi-grid">
+  <div class="kpi-card"><div class="kpi-icon" style="background:#DCFCE7"><i data-lucide="dollar-sign" width="24" height="24" style="color:var(--green)"></i></div><div><div class="kpi-label">Общая стоимость</div><div class="kpi-value">{{ total_cost|floatformat:0 }} ₽</div></div></div>
+  <div class="kpi-card"><div class="kpi-icon" style="background:#DBEAFE"><i data-lucide="check-circle" width="24" height="24" style="color:#1D4ED8"></i></div><div><div class="kpi-label">Активное</div><div class="kpi-value">{{ active_cost|floatformat:0 }} ₽</div></div></div>
+  <div class="kpi-card"><div class="kpi-icon" style="background:var(--gray-bg)"><i data-lucide="archive" width="24" height="24" style="color:var(--gray)"></i></div><div><div class="kpi-label">Списано</div><div class="kpi-value" style="color:var(--gray)">{{ written_off_cost|floatformat:0 }} ₽</div></div></div>
+</div>
+<a href="{% url 'accounting' %}" class="btn btn-primary"><i data-lucide="calculator" width="16" height="16"></i> Перейти к бухгалтерии</a>
+{% elif request.user.role == 'technician' %}
+<h3 style="margin-bottom:16px">Мои заявки на ремонт</h3>
+<div class="table-card">
+  <table><thead><tr><th>Номер</th><th>Кабинет</th><th>Оборудование</th><th>Приоритет</th><th>Статус</th></tr></thead>
+  <tbody>{% for r in my_requests %}
+  <tr><td><a href="{% url 'request_detail' r.pk %}" style="color:var(--blue-mid)">{{ r.number }}</a></td>
+  <td>{{ r.room }}</td><td>{{ r.equipment|default:"—" }}</td>
+  <td><span class="badge badge-{% if r.priority == 'high' %}red{% elif r.priority == 'medium' %}yellow{% else %}gray{% endif %}">{{ r.get_priority_display }}</span></td>
+  <td><span class="badge badge-{{ r.status_color }}">{{ r.get_status_display }}</span></td></tr>
+  {% empty %}<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-secondary)">Заявок нет</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endif %}
+{% endblock %}

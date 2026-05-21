@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block page_title %}Запросы на изменение{% endblock %}
+{% block content %}
+<div class="flex-between mb-20">
+  <div></div>
+  {% if request.user.role == 'keeper' %}<a href="{% url 'change_request_create' %}" class="btn btn-primary"><i data-lucide="plus" width="16" height="16"></i> Новый запрос</a>{% endif %}
+</div>
+<div class="table-card">
+  <table><thead><tr><th>Кабинет</th><th>Тип</th><th>Описание</th><th>Статус</th><th>Дата</th>{% if request.user.role == 'admin' %}<th>Действия</th>{% endif %}</tr></thead>
+  <tbody>{% for r in requests %}
+  <tr>
+    <td>{{ r.room }}</td>
+    <td>{{ r.get_request_type_display }}</td>
+    <td style="max-width:300px">{{ r.description|truncatechars:80 }}</td>
+    <td><span class="badge badge-{% if r.status == 'approved' %}green{% elif r.status == 'rejected' %}red{% else %}yellow{% endif %}">{{ r.get_status_display }}</span></td>
+    <td class="text-secondary">{{ r.created_at|date:"d.m.Y" }}</td>
+    {% if request.user.role == 'admin' %}<td><a href="{% url 'change_request_review' r.pk %}" class="btn btn-ghost btn-sm"><i data-lucide="check-square" width="14" height="14"></i> Рассмотреть</a></td>{% endif %}
+  </tr>
+  {% empty %}<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-secondary)">Запросов нет</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

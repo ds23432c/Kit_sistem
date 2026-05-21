@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block page_title %}Уведомления{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+  <a href="{% url 'mark_notifications_read' %}" class="btn btn-secondary btn-sm">Отметить все прочитанными</a>
+</div>
+<div class="table-card">
+  {% for n in notifications %}
+  <div style="padding:16px 20px;border-bottom:1px solid #F3F4F6;display:flex;gap:16px;align-items:flex-start;{% if not n.is_read %}background:#F0F7FF{% endif %}">
+    <div style="width:8px;height:8px;border-radius:50%;background:{% if not n.is_read %}var(--blue-mid){% else %}var(--gray){% endif %};margin-top:6px;flex-shrink:0"></div>
+    <div style="flex:1">
+      <div style="font-weight:{% if not n.is_read %}600{% else %}400{% endif %};margin-bottom:4px">{{ n.title }}</div>
+      <div class="text-secondary" style="font-size:13px">{{ n.message }}</div>
+    </div>
+    <div class="text-secondary" style="font-size:12px;white-space:nowrap">{{ n.created_at|date:"d.m.Y H:i" }}</div>
+  </div>
+  {% empty %}
+  <div class="empty-state"><i data-lucide="bell-off" width="48" height="48"></i><h3>Уведомлений нет</h3></div>
+  {% endfor %}
+</div>
+{% endblock %}

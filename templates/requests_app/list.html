@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block page_title %}Заявки на ремонт{% endblock %}
+{% block content %}
+<div class="flex-between mb-20">
+  <div style="display:flex;gap:6px">
+    <a href="{% url 'request_list' %}" class="btn {% if not current_status %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">Все</a>
+    {% for v,l in statuses %}<a href="?status={{ v }}" class="btn {% if current_status == v %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">{{ l }}</a>{% endfor %}
+  </div>
+  {% if request.user.role in 'admin,keeper' %}<a href="{% url 'request_create' %}" class="btn btn-primary"><i data-lucide="plus" width="16" height="16"></i> Новая заявка</a>{% endif %}
+</div>
+<div class="table-card">
+  <table>
+    <thead><tr><th>Номер</th><th>Кабинет</th><th>Оборудование</th><th>Приоритет</th><th>Статус</th><th>Заявитель</th><th>Дата</th><th></th></tr></thead>
+    <tbody>{% for r in requests %}
+    <tr>
+      <td><a href="{% url 'request_detail' r.pk %}" style="color:var(--blue-mid);font-weight:600">{{ r.number }}</a></td>
+      <td>{{ r.room }}</td>
+      <td>{{ r.equipment|default:"—" }}</td>
+      <td><span class="badge badge-{% if r.priority == 'high' %}red{% elif r.priority == 'medium' %}yellow{% else %}gray{% endif %}">{{ r.get_priority_display }}</span></td>
+      <td><span class="badge badge-{{ r.status_color }}">{{ r.get_status_display }}</span></td>
+      <td class="text-secondary">{{ r.created_by|default:"—" }}</td>
+      <td class="text-secondary">{{ r.created_at|date:"d.m.Y" }}</td>
+      <td>
+        <a href="{% url 'request_detail' r.pk %}" class="btn btn-ghost btn-sm"><i data-lucide="eye" width="14" height="14"></i></a>
+        <a href="{% url 'request_download_docx' r.pk %}" class="btn btn-ghost btn-sm" title="Скачать Word"><i data-lucide="file-text" width="14" height="14"></i></a>
+      </td>
+    </tr>
+    {% empty %}<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-secondary)">Заявок нет</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

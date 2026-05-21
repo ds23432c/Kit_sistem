@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block page_title %}Оборудование{% endblock %}
+{% block content %}
+<div class="flex-between mb-20">
+  <div style="display:flex;gap:8px">
+    <a href="{% url 'equipment_add' %}" class="btn btn-primary"><i data-lucide="plus" width="16" height="16"></i> Добавить</a>
+    <a href="{% url 'equipment_import' %}" class="btn btn-secondary"><i data-lucide="upload" width="16" height="16"></i> Импорт Excel</a>
+    <a href="{% url 'equipment_export' %}" class="btn btn-secondary"><i data-lucide="download" width="16" height="16"></i> Экспорт</a>
+    <a href="{% url 'equipment_template' %}" class="btn btn-ghost"><i data-lucide="file-spreadsheet" width="16" height="16"></i> Шаблон</a>
+  </div>
+</div>
+<form method="get" class="filters-bar">
+  <input class="form-input" name="search" placeholder="Поиск по рег. номеру, марке, модели" value="{{ filters.search }}">
+  <select class="form-select" name="condition"><option value="">Все состояния</option><option value="ok"{% if filters.condition == 'ok' %} selected{% endif %}>Исправно</option><option value="broken"{% if filters.condition == 'broken' %} selected{% endif %}>Неисправно</option><option value="repair"{% if filters.condition == 'repair' %} selected{% endif %}>В ремонте</option><option value="written_off"{% if filters.condition == 'written_off' %} selected{% endif %}>Списано</option></select>
+  <select class="form-select" name="type"><option value="">Все виды</option>{% for t in equipment_types %}<option value="{{ t.pk }}"{% if filters.type == t.pk|stringformat:'s' %} selected{% endif %}>{{ t.name }}</option>{% endfor %}</select>
+  <select class="form-select" name="floor"><option value="">Все этажи</option>{% for f in floors %}<option value="{{ f.pk }}"{% if filters.floor == f.pk|stringformat:'s' %} selected{% endif %}>{{ f }}</option>{% endfor %}</select>
+  <select class="form-select" name="is_present"><option value="">На месте / нет</option><option value="1"{% if filters.is_present == '1' %} selected{% endif %}>На месте</option><option value="0"{% if filters.is_present == '0' %} selected{% endif %}>Отсутствует</option></select>
+  <button type="submit" class="btn btn-primary btn-sm">Применить</button>
+  <a href="{% url 'equipment_list' %}" class="btn btn-ghost btn-sm">Сбросить</a>
+</form>
+<div class="table-card">
+  <table>
+    <thead><tr><th>Рег. номер</th><th>Марка / Модель</th><th>Вид</th><th>Кабинет</th><th>Состояние</th><th>На месте</th><th>Проверка</th>{% if request.user.role in 'admin,accountant' %}<th>Стоимость</th>{% endif %}<th></th></tr></thead>
+    <tbody>
+    {% for item in equipment %}
+    <tr>
+      <td class="font-mono"><a href="{% url 'equipment_detail' item.pk %}" style="color:var(--blue-mid)">{{ item.reg_number }}</a></td>
+      <td><div style="font-weight:500">{{ item.brand }}</div><div class="text-secondary" style="font-size:12px">{{ item.model }}</div></td>
+      <td class="text-secondary">{{ item.equipment_type.name|default:"—" }}</td>
+      <td>{% if item.room %}<a href="{% url 'room_detail' item.room.pk %}" style="color:var(--blue-mid)">{{ item.room.name }}</a>{% else %}—{% endif %}</td>
+      <td><span class="badge badge-{{ item.condition_badge }}">{{ item.get_condition_display }}</span></td>
+      <td>{% if item.is_present %}<span class="badge badge-green">Да</span>{% else %}<span class="badge badge-orange">Нет</span>{% endif %}</td>
+      <td class="text-secondary" style="font-size:12px">{% if item.is_overdue %}<span style="color:var(--red)">{{ item.next_check_date|date:"d.m.Y" }} ⚠</span>{% else %}{{ item.next_check_date|date:"d.m.Y"|default:"—" }}{% endif %}</td>
+      {% if request.user.role in 'admin,accountant' %}<td>{% if item.cost %}{{ item.cost|floatformat:0 }} ₽{% else %}—{% endif %}</td>{% endif %}
+      <td><a href="{% url 'equipment_detail' item.pk %}" class="btn btn-ghost btn-sm"><i data-lucide="eye" width="14" height="14"></i></a></td>
+    </tr>
+    {% empty %}<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text-secondary)">Оборудование не найдено</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

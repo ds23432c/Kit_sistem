@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block page_title %}Этажи и кабинеты{% endblock %}
+{% block content %}
+{% for building in buildings %}
+<div style="margin-bottom:32px">
+  <h2 style="margin-bottom:16px">{{ building.name }}</h2>
+  {% for floor in building.floors.all %}
+  <div class="card mb-20">
+    <div class="flex-between" style="margin-bottom:16px">
+      <h3>Этаж {{ floor.number }}{% if floor.name %} — {{ floor.name }}{% endif %}</h3>
+      <div style="display:flex;gap:8px">
+        <a href="{% url 'map' %}?floor={{ floor.pk }}" class="btn btn-secondary btn-sm"><i data-lucide="map" width="14" height="14"></i> На карте</a>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+      {% for room in floor.rooms.all %}
+      <a href="{% url 'room_detail' room.pk %}" style="display:block;padding:14px;border:1.5px solid #E5E7EB;border-radius:8px;transition:all .15s;text-decoration:none;color:inherit" class="room-card">
+        <div style="font-weight:600;margin-bottom:4px">{{ room.name }}</div>
+        <div class="text-secondary" style="font-size:12px">Каб. {{ room.number }}</div>
+        <div style="margin-top:8px">
+          <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:{% if room.status_color == 'green' %}var(--green){% elif room.status_color == 'red' %}var(--red){% elif room.status_color == 'yellow' %}var(--yellow){% else %}var(--gray){% endif %}"></span>
+          <span class="text-secondary" style="font-size:11px;margin-left:4px">{{ room.equipment_items.count }} ед.</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
+{% endblock %}

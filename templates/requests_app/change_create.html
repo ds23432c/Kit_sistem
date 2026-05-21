@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block page_title %}Запрос на изменение{% endblock %}
+{% block content %}
+<div class="card" style="max-width:560px">
+  <h3 style="margin-bottom:20px">Запрос на изменение кабинета</h3>
+  <form method="post">{% csrf_token %}
+    <div class="form-group"><label class="form-label">Кабинет *</label>
+      <select name="room" class="form-select" required>{% for r in rooms %}<option value="{{ r.pk }}"{% if request.GET.room == r.pk|stringformat:'s' %} selected{% endif %}>{{ r.name }}</option>{% endfor %}</select></div>
+    <div class="form-group"><label class="form-label">Тип запроса *</label>
+      <select name="request_type" class="form-select" required>{% for v,l in types %}<option value="{{ v }}">{{ l }}</option>{% endfor %}</select></div>
+    <div class="form-group"><label class="form-label">Описание изменения *</label>
+      <textarea name="description" class="form-textarea" required placeholder="Что именно нужно изменить и почему..."></textarea></div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button type="submit" class="btn btn-primary">Отправить запрос</button>
+      <a href="{% url 'change_request_list' %}" class="btn btn-secondary">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

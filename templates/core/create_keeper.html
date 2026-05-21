@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block page_title %}Создать заведующего{% endblock %}
+{% block content %}
+<div class="card" style="max-width:480px">
+  <h3 style="margin-bottom:16px">Создать заведующего для кабинета {{ room.name }}</h3>
+  <form method="post">{% csrf_token %}
+    <div class="form-group"><label class="form-label">Фамилия</label><input type="text" name="last_name" class="form-input" required></div>
+    <div class="form-group"><label class="form-label">Имя</label><input type="text" name="first_name" class="form-input" required></div>
+    <div class="form-group"><label class="form-label">Логин</label><input type="text" name="username" class="form-input" required></div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button type="submit" class="btn btn-primary">Создать</button>
+      <a href="{% url 'room_detail' room.pk %}" class="btn btn-secondary">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

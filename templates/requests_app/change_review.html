@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block page_title %}Рассмотреть запрос{% endblock %}
+{% block content %}
+<div class="card" style="max-width:560px">
+  <h3 style="margin-bottom:16px">Запрос на изменение</h3>
+  <div style="background:var(--bg);border-radius:8px;padding:16px;margin-bottom:20px">
+    <div style="margin-bottom:8px"><span class="text-secondary">Кабинет: </span><strong>{{ req.room }}</strong></div>
+    <div style="margin-bottom:8px"><span class="text-secondary">Тип: </span><strong>{{ req.get_request_type_display }}</strong></div>
+    <div style="margin-bottom:8px"><span class="text-secondary">От: </span><strong>{{ req.created_by }}</strong></div>
+    <div><span class="text-secondary">Описание: </span>{{ req.description }}</div>
+  </div>
+  <form method="post">{% csrf_token %}
+    <div class="form-group"><label class="form-label">Решение *</label>
+      <select name="status" class="form-select" required><option value="approved">Одобрить</option><option value="rejected">Отклонить</option></select></div>
+    <div class="form-group"><label class="form-label">Комментарий</label>
+      <textarea name="admin_comment" class="form-textarea" placeholder="Комментарий для заведующего..."></textarea></div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button type="submit" class="btn btn-primary">Сохранить решение</button>
+      <a href="{% url 'change_request_list' %}" class="btn btn-secondary">Назад</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

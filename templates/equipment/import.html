@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block page_title %}Импорт оборудования{% endblock %}
+{% block content %}
+{% if success_count %}<div class="alert alert-success">✅ Успешно загружено: {{ success_count }} записей</div>{% endif %}
+{% if errors %}<div class="alert alert-error"><strong>Ошибки ({{ errors|length }}):</strong><ul style="margin-top:8px">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+<div class="card" style="max-width:600px">
+  <div style="margin-bottom:20px">
+    <h3 style="margin-bottom:8px">Загрузка Excel-файла</h3>
+    <p class="text-secondary" style="font-size:13px">Скачайте шаблон, заполните и загрузите. Столбцы: Рег. номер, Марка, Модель, Характеристики, Вид, Кабинет, Количество, Стоимость</p>
+  </div>
+  <a href="{% url 'equipment_template' %}" class="btn btn-secondary" style="margin-bottom:20px"><i data-lucide="download" width="16" height="16"></i> Скачать шаблон</a>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    <div style="border:2px dashed #E5E7EB;border-radius:8px;padding:32px;text-align:center;margin-bottom:20px;transition:border-color .15s" id="drop-zone">
+      <i data-lucide="upload-cloud" width="40" height="40" style="opacity:.3;margin:0 auto 12px;display:block"></i>
+      <p style="margin-bottom:8px;font-weight:500">Перетащите файл сюда</p>
+      <p class="text-secondary" style="font-size:13px;margin-bottom:16px">или</p>
+      <input type="file" name="file" id="file-input" accept=".xlsx,.xls" style="display:none">
+      <label for="file-input" class="btn btn-secondary" style="cursor:pointer">Выбрать файл</label>
+      <div id="file-name" style="margin-top:12px;font-size:13px;color:var(--blue-mid)"></div>
+    </div>
+    <button type="submit" class="btn btn-primary">Загрузить</button>
+  </form>
+</div>
+{% endblock %}
+{% block extra_js %}<script>
+document.getElementById('file-input').addEventListener('change', function(e){
+  if(e.target.files[0]) document.getElementById('file-name').textContent = '📎 ' + e.target.files[0].name;
+});
+</script>{% endblock %}

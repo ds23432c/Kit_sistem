@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block page_title %}Карта здания{% endblock %}
+{% block extra_css %}
+<style>
+.map-canvas-wrap { position:relative; background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); overflow:hidden; }
+#map-canvas { display:block; cursor:pointer; width:100%; }
+.map-toolbar { background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); padding:14px 20px; margin-bottom:16px; display:flex; align-items:center; gap:16px; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:12px; }
+.legend-dot { width:12px; height:12px; border-radius:50%; }
+.room-popup { position:absolute; background:white; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.15); padding:16px; min-width:280px; max-width:340px; z-index:10; display:none; }
+.room-popup.visible { display:block; }
+.room-popup-close { position:absolute; top:8px; right:8px; cursor:pointer; color:#6B7280; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="map-toolbar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <label style="font-size:13px;font-weight:500">Этаж:</label>
+    <select class="form-select" id="floor-select" style="min-width:160px">
+      {% for building in buildings %}{% for floor in building.floors.all %}
+      <option value="{{ floor.pk }}" {% if selected_floor.pk == floor.pk %}selected{% endif %} data-url="?floor={{ floor.pk }}">{{ building.name }} — Этаж {{ floor.number }}</option>
+      {% endfor %}{% endfor %}
+    </select>
+  </div>
+  <div style="flex:1"></div>
+  <div style="display:flex;gap:16px">
+    <div class="legend-item"><div class="legend-dot" style="background:#16A34A"></div> Исправно</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#D97706"></div> В ремонте</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#DC2626"></div> Неисправно</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#9CA3AF"></div> Списано</div>
+  </div>
+  {% if request.user.role == 'admin' %}
+  <a href="{% url 'map_editor' %}{% if selected_floor %}?floor={{ selected_floor.pk }}{% endif %}" class="btn btn-secondary btn-sm"><i data-lucide="edit-2" width="14" height="14"></i> Редактировать</a>
+  {% endif %}
+</div>
+<div style="position:relative">
+  <div class="map-canvas-wrap">
+    <canvas id="map-canvas" height="600"></canvas>
+  </div>
+  <div class="room-popup" id="room-popup">
+    <div class="room-popup-close" onclick="closePopup()"><i data-lucide="x" width="16" height="16"></i></div>
+    <h4 id="popup-title" style="margin-bottom:4px"></h4>
+    <div id="popup-number" class="text-secondary" style="font-size:12px;margin-bottom:12px"></div>
+    <div id="popup-equipment" style="font-size:13px;max-height:200px;overflow-y:auto"></div>
+    <div style="margin-top:12px"><a id="popup-link" href="#" class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Открыть кабинет</a></div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const floorData = {{ selected_floor.map_data|default:'{}'|safe }};
+const canvas = document.getElementById('map-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = canvas.offsetWidth;
+
+const STATUS_COLORS = { green:'#16A34A', red:'#DC2626', yellow:'#D97706', gray:'#9CA3AF' };
+const STATUS_BG = { green:'rgba(22,163,74,.12)', red:'rgba(220,38,38,.12)', yellow:'rgba(217,119,6,.12)', gray:'rgba(156,163,175,.12)' };
+
+let shapes = floorData.shapes || generateDefaultShapes();
+
+function generateDefaultShapes() {
+  // Generate placeholder grid if no map data
+  {% if selected_floor %}
+  {% for room in selected_floor.rooms.all %}
+  {% endfor %}
+  {% endif %}
+  return [];
+}
+
+function drawMap() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#F9FAFB';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Grid
+  ctx.strokeStyle = '#E5E7EB';
+  ctx.lineWidth = 0.5;
+  for(let x=0; x<canvas.width; x+=40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+  for(let y=0; y<canvas.height; y+=40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+  shapes.forEach(shape => drawShape(shape));
+}
+
+function drawShape(shape) {
+  const color = STATUS_COLORS[shape.status_color] || '#9CA3AF';
+  const bg = STATUS_BG[shape.status_color] || 'rgba(156,163,175,.12)';
+  ctx.fillStyle = bg;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(shape.x, shape.y, shape.w, shape.h, 8);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#1A1A2E';
+  ctx.font = 'bold 13px Inter,sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(shape.name || '', shape.x + shape.w/2, shape.y + shape.h/2 - 4);
+  ctx.fillStyle = '#6B7280';
+  ctx.font = '11px Inter,sans-serif';
+  ctx.fillText('Каб. ' + (shape.number || ''), shape.x + shape.w/2, shape.y + shape.h/2 + 14);
+  // Status dot
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(shape.x + shape.w - 12, shape.y + 12, 5, 0, Math.PI*2); ctx.fill();
+}
+
+function getShapeAt(mx, my) {
+  return shapes.find(s => mx >= s.x && mx <= s.x+s.w && my >= s.y && my <= s.y+s.h);
+}
+
+canvas.addEventListener('click', function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const shape = getShapeAt(mx, my);
+  if(shape && shape.room_id) showRoomPopup(shape, e.clientX, e.clientY);
+});
+
+canvas.addEventListener('mousemove', function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+  canvas.style.cursor = getShapeAt(mx, my) ? 'pointer' : 'default';
+});
+
+async function showRoomPopup(shape, cx, cy) {
+  try {
+    const r = await fetch('/map/api/room/' + shape.room_id + '/info/');
+    const data = await r.json();
+    document.getElementById('popup-title').textContent = data.name;
+    document.getElementById('popup-number').textContent = 'Кабинет ' + data.number;
+    document.getElementById('popup-link').href = data.url;
+    const eqHtml = data.equipment.map(e =>
+      '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #F3F4F6"><span>' + e.reg_number + ' ' + e.name + '</span>' +
+      '<span class="badge badge-' + (e.condition=='ok'?'green':e.condition=='broken'?'red':e.condition=='repair'?'yellow':'gray') + '" style="font-size:10px">' + e.condition_display + '</span></div>'
+    ).join('') || '<div class="text-secondary" style="font-size:13px">Оборудование не добавлено</div>';
+    document.getElementById('popup-equipment').innerHTML = eqHtml;
+    const popup = document.getElementById('room-popup');
+    popup.style.left = Math.min(cx + 10, window.innerWidth - 360) + 'px';
+    popup.style.top = (cy - 80) + 'px';
+    popup.classList.add('visible');
+    lucide.createIcons();
+  } catch(err) { console.error(err); }
+}
+
+function closePopup() { document.getElementById('room-popup').classList.remove('visible'); }
+document.addEventListener('click', function(e) { if(!e.target.closest('#room-popup') && !e.target.closest('#map-canvas')) closePopup(); });
+
+// Load rooms from server and draw
+async function loadAndDraw() {
+  {% if selected_floor %}
+  try {
+    const rooms = await Promise.all([
+      {% for room in selected_floor.rooms.all %}
+      fetch('/map/api/room/{{ room.pk }}/info/').then(r=>r.json()),
+      {% endfor %}
+    ]);
+    if(!shapes.length) {
+      let col = 0, row = 0;
+      rooms.forEach((room, i) => {
+        if(col > 3) { col=0; row++; }
+        shapes.push({ x:20+col*190, y:20+row*120, w:170, h:100, name:room.name, number:room.number, room_id:room.id, status_color:room.status_color });
+        col++;
+      });
+    }
+    drawMap();
+  } catch(e) { drawMap(); }
+  {% else %}drawMap();{% endif %}
+}
+
+loadAndDraw();
+
+document.getElementById('floor-select').addEventListener('change', function() {
+  window.location = this.selectedOptions[0].dataset.url;
+});
+window.addEventListener('resize', () => { canvas.width = canvas.offsetWidth; loadAndDraw(); });
+</script>
+{% endblock %}

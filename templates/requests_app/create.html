@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block page_title %}Новая заявка на ремонт{% endblock %}
+{% block content %}
+<div class="card" style="max-width:600px">
+  <h3 style="margin-bottom:20px">Создать заявку на ремонт</h3>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    <div class="form-group">
+      <label class="form-label">Кабинет *</label>
+      <select name="room" class="form-select" id="room-select" required>
+        <option value="">Выберите кабинет</option>
+        {% for room in rooms %}<option value="{{ room.pk }}"{% if request.GET.room == room.pk|stringformat:'s' %} selected{% endif %}>{{ room.name }} ({{ room.number }})</option>{% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Оборудование</label>
+      <select name="equipment" class="form-select" id="equipment-select">
+        <option value="">Сначала выберите кабинет</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Описание неисправности *</label>
+      <textarea name="description" class="form-textarea" required placeholder="Опишите проблему подробно..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Приоритет</label>
+      <select name="priority" class="form-select">
+        {% for v,l in priorities %}<option value="{{ v }}">{{ l }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Фото неисправности</label>
+      <input type="file" name="photo" class="form-input" accept="image/*">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button type="submit" class="btn btn-primary">Отправить заявку</button>
+      <a href="{% url 'request_list' %}" class="btn btn-secondary">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const equipmentData = {{ equipment_json|safe }};
+document.getElementById('room-select').addEventListener('change', function(){
+  const sel = document.getElementById('equipment-select');
+  sel.innerHTML = '<option value="">— не указано —</option>';
+  (equipmentData[this.value] || []).forEach(e => {
+    sel.innerHTML += '<option value="' + e.id + '">' + e.reg_number + ' — ' + e.brand + ' ' + e.model + '</option>';
+  });
+});
+// Trigger if room pre-selected
+if(document.getElementById('room-select').value) document.getElementById('room-select').dispatchEvent(new Event('change'));
+</script>
+{% endblock %}

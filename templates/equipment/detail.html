@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ item.brand }} {{ item.model }}{% endblock %}
+{% block content %}
+<div class="breadcrumbs">
+  <a href="{% url 'equipment_list' %}">Оборудование</a><span>/</span><span>{{ item.reg_number }}</span>
+</div>
+<div class="grid-2 mb-20">
+  <div class="card">
+    {% if item.photo %}<img src="{{ item.photo.url }}" style="width:100%;border-radius:8px;margin-bottom:16px;max-height:250px;object-fit:cover">{% else %}
+    <div style="width:100%;height:200px;background:var(--bg);border-radius:8px;margin-bottom:16px;display:flex;align-items:center;justify-content:center"><i data-lucide="image" width="48" height="48" style="opacity:.2"></i></div>{% endif %}
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="badge badge-{{ item.condition_badge }}">{{ item.get_condition_display }}</span>
+      {% if item.is_present %}<span class="badge badge-green">На месте</span>{% else %}<span class="badge badge-orange">Отсутствует</span>{% endif %}
+      {% if item.is_overdue %}<span class="badge badge-red">Проверка просрочена</span>{% endif %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:20px">
+      <h2>{{ item.brand }} {{ item.model }}</h2>
+      <div style="display:flex;gap:8px">
+        {% if request.user.role != 'technician' %}<a href="{% url 'equipment_edit' item.pk %}" class="btn btn-secondary btn-sm"><i data-lucide="edit-2" width="14" height="14"></i> Редактировать</a>{% endif %}
+        {% if request.user.role == 'admin' or request.user.role == 'ahc' %}<a href="{% url 'equipment_writeoff' item.pk %}" class="btn btn-danger btn-sm">Списать</a>{% endif %}
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      {% for label, value in item_fields %}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6">
+        <span class="text-secondary">{{ label }}</span><strong>{{ value|default:"—" }}</strong>
+      </div>
+      {% endfor %}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Рег. номер</span><strong class="font-mono">{{ item.reg_number }}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Марка</span><strong>{{ item.brand }}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Модель</span><strong>{{ item.model }}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Количество</span><strong>{{ item.quantity }}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Кабинет</span><strong>{% if item.room %}<a href="{% url 'room_detail' item.room.pk %}" style="color:var(--blue-mid)">{{ item.room }}</a>{% else %}—{% endif %}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Дата внесения</span><strong>{{ item.date_added|date:"d.m.Y" }}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6"><span class="text-secondary">Посл. проверка</span><strong>{{ item.last_check_date|date:"d.m.Y"|default:"—" }}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0"><span class="text-secondary">След. проверка</span><strong>{{ item.next_check_date|date:"d.m.Y"|default:"—" }}</strong></div>
+      {% if request.user.role == 'admin' or request.user.role == 'accountant' %}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #F3F4F6"><span class="text-secondary">Стоимость</span><strong>{% if item.cost %}{{ item.cost|floatformat:0 }} ₽{% else %}—{% endif %}</strong></div>
+      {% endif %}
+    </div>
+    {% if item.specs %}
+    <div style="margin-top:16px;padding:12px;background:var(--bg);border-radius:8px">
+      <div class="text-secondary" style="font-size:12px;margin-bottom:4px">Технические характеристики</div>
+      <div style="font-size:13px">{{ item.specs }}</div>
+    </div>
+    {% endif %}
+    <div style="margin-top:16px">
+      <a href="{% url 'request_create' %}?equipment={{ item.pk }}" class="btn btn-primary btn-sm"><i data-lucide="wrench" width="14" height="14"></i> Создать заявку на ремонт</a>
+    </div>
+  </div>
+</div>
+{% if logs %}
+<div class="table-card mt-20">
+  <div class="table-header"><div class="table-title">История изменений</div></div>
+  <table><thead><tr><th>Действие</th><th>Пользователь</th><th>Дата</th></tr></thead>
+  <tbody>{% for log in logs %}<tr><td>{{ log.action }}</td><td>{{ log.user|default:"—" }}</td><td class="text-secondary">{{ log.created_at|date:"d.m.Y H:i" }}</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

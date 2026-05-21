@@ -1,0 +1,162 @@
+[
+  {
+    "model": "accounts.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$p5igFOGsasFOL5txbLRqH4$XB1OtPPZ4TOzwUGRCOdtg/nuOw0wJLR5BJILivBo4gg=",
+      "last_login": null,
+      "is_superuser": true,
+      "username": "admin",
+      "first_name": "Иван",
+      "last_name": "Петров",
+      "email": "admin@school.ru",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2024-01-10T08:00:00Z",
+      "role": "admin",
+      "phone": "+7 (495) 111-22-33",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$p5igFOGsasFOL5txbLRqH4$XB1OtPPZ4TOzwUGRCOdtg/nuOw0wJLR5BJILivBo4gg=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "ahc",
+      "first_name": "Ольга",
+      "last_name": "Сидорова",
+      "email": "ahc@school.ru",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-11T08:00:00Z",
+      "role": "ahc",
+      "phone": "+7 (495) 111-22-34",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$p5igFOGsasFOL5txbLRqH4$XB1OtPPZ4TOzwUGRCOdtg/nuOw0wJLR5BJILivBo4gg=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "keeper1",
+      "first_name": "Наталья",
+      "last_name": "Козлова",
+      "email": "kozlova@school.ru",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-12T08:00:00Z",
+      "role": "keeper",
+      "phone": "+7 (495) 111-22-35",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 4,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$p5igFOGsasFOL5txbLRqH4$XB1OtPPZ4TOzwUGRCOdtg/nuOw0wJLR5BJILivBo4gg=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "keeper2",
+      "first_name": "Дмитрий",
+      "last_name": "Волков",
+      "email": "volkov@school.ru",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-12T09:00:00Z",
+      "role": "keeper",
+      "phone": "+7 (495) 111-22-36",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 5,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$p5igFOGsasFOL5txbLRqH4$XB1OtPPZ4TOzwUGRCOdtg/nuOw0wJLR5BJILivBo4gg=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "keeper3",
+      "first_name": "Алексей",
+      "last_name": "Новиков",
+      "email": "novikov@school.ru",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-13T08:00:00Z",
+      "role": "keeper",
+      "phone": "+7 (495) 111-22-37",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 6,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$p5igFOGsasFOL5txbLRqH4$XB1OtPPZ4TOzwUGRCOdtg/nuOw0wJLR5BJILivBo4gg=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "tech1",
+      "first_name": "Сергей",
+      "last_name": "Морозов",
+      "email": "morozov@school.ru",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-14T08:00:00Z",
+      "role": "technician",
+      "phone": "+7 (495) 111-22-38",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 7,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$p5igFOGsasFOL5txbLRqH4$XB1OtPPZ4TOzwUGRCOdtg/nuOw0wJLR5BJILivBo4gg=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "tech2",
+      "first_name": "Михаил",
+      "last_name": "Лебедев",
+      "email": "lebedev@school.ru",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-14T09:00:00Z",
+      "role": "technician",
+      "phone": "+7 (495) 111-22-39",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 8,
+    "fields": {
+      "password": "pbkdf2_sha256$1200000$p5igFOGsasFOL5txbLRqH4$XB1OtPPZ4TOzwUGRCOdtg/nuOw0wJLR5BJILivBo4gg=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "buh1",
+      "first_name": "Татьяна",
+      "last_name": "Белова",
+      "email": "belova@school.ru",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-01-15T08:00:00Z",
+      "role": "accountant",
+      "phone": "+7 (495) 111-22-40",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]

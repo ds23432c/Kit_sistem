@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block page_title %}Пользователь создан{% endblock %}
+{% block content %}
+<div class="card" style="max-width:480px">
+  <div style="text-align:center;padding:20px 0">
+    <div style="width:56px;height:56px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+      <i data-lucide="check-circle" width="28" height="28" style="color:var(--green)"></i>
+    </div>
+    <h2 style="margin-bottom:8px">Пользователь создан!</h2>
+    <p class="text-secondary" style="margin-bottom:24px">Сохраните данные для входа</p>
+    <div style="background:var(--bg);border-radius:8px;padding:16px;text-align:left;margin-bottom:24px">
+      <div style="margin-bottom:8px"><span class="text-secondary">Логин: </span><strong class="font-mono">{{ new_user.username }}</strong></div>
+      <div><span class="text-secondary">Пароль: </span><strong class="font-mono" style="color:var(--red)">{{ password }}</strong></div>
+    </div>
+    <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:8px;padding:12px;font-size:13px;color:#92400E;margin-bottom:24px">
+      ⚠️ Скопируйте пароль сейчас — он больше не будет показан
+    </div>
+    <a href="{% url 'user_list' %}" class="btn btn-primary">Вернуться к списку</a>
+  </div>
+</div>
+{% endblock %}
