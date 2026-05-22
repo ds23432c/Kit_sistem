@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -12,12 +13,12 @@ class Command(BaseCommand):
     help = 'Загружает тестовые данные в правильном порядке'
 
     fixtures = [
-        '01_users',
-        '02_building_floors_rooms',
-        '03_equipment_types',
-        '04_equipment',
-        '05_requests',
-        '06_writeoffs_logs_notifications',
+        str(settings.BASE_DIR / 'fixtures' / '01_users.json'),
+        str(settings.BASE_DIR / 'fixtures' / '02_building_floors_rooms.json'),
+        str(settings.BASE_DIR / 'fixtures' / '03_equipment_types.json'),
+        str(settings.BASE_DIR / 'fixtures' / '04_equipment.json'),
+        str(settings.BASE_DIR / 'fixtures' / '05_requests.json'),
+        str(settings.BASE_DIR / 'fixtures' / '06_writeoffs_logs_notifications.json'),
     ]
 
     expected_counts = {
