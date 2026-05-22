@@ -13,6 +13,7 @@ if os.path.isfile(env_file):
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key-replace-me-in-production-now')
 DEBUG = env('DEBUG', default=False)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[]) + ['https://*.up.railway.app', 'https://*.railway.app']
 
 # Railway auto-provides RAILWAY_STATIC_URL
 RAILWAY_STATIC_URL = os.environ.get('RAILWAY_STATIC_URL', '')
