@@ -67,6 +67,28 @@ def floor_list(request):
 
 
 @login_required
+def create_building(request):
+    if not request.user.is_admin:
+        return redirect('dashboard')
+    if request.method == 'POST':
+        name = request.POST.get('name', '')
+        address = request.POST.get('address', '')
+        
+        if not name:
+            messages.error(request, 'Заполните название здания')
+            return redirect('create_building')
+        
+        building = Building.objects.create(
+            name=name,
+            address=address
+        )
+        messages.success(request, f'Здание "{name}" создано')
+        return redirect('floor_list')
+    
+    return render(request, 'core/create_building.html')
+
+
+@login_required
 def create_floor(request):
     if not request.user.is_admin:
         return redirect('dashboard')
