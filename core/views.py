@@ -60,8 +60,69 @@ def dashboard(request):
 
 @login_required
 def floor_list(request):
+    if not request.user.is_admin:
+        return redirect('dashboard')
     buildings = Building.objects.prefetch_related('floors__rooms').all()
     return render(request, 'core/floor_list.html', {'buildings': buildings})
+
+
+@login_required
+def create_floor(request):
+    if not request.user.is_admin:
+        return redirect('dashboard')
+    if request.method == 'POST':
+        building_id = request.POST.get('building')
+        number = request.POST.get('number')
+        name = request.POST.get('name', '')
+        
+        if not building_id or not number:
+            messages.error(request, 'Заполните все обязательные поля')
+            return redirect('create_floor')
+        
+        try:
+            building = Building.objects.get(pk=building_id)
+            floor, created = Floor.objects.get_or_create(
+                building=building,
+                number=int(number),
+                defaults={'name': name}
+            )
+            if created:
+                messages.success(request, f'Этаж {number} создан')
+            else:
+                messages.warning(request, f'Этаж {number} уже существует')
+            return redirect('floor_list')
+        except Building.DoesNotExist:
+            messages.error(request, 'Здание не найдено')
+        except ValueError:
+            messages.error(request, 'Номер этажа должен быть числом')
+    
+    buildings = Building.objects.all()
+    return render(request, 'core/create_floor.html', {'buildings': buildings})
+
+
+@login_required
+def create_room(request, floor_id):
+    if not request.user.is_admin:
+        return redirect('dashboard')
+    floor = get_object_or_404(Floor, pk=floor_id)
+    
+    if request.method == 'POST':
+        number = request.POST.get('number', '')
+        name = request.POST.get('name', '')
+        
+        if not number or not name:
+            messages.error(request, 'Заполните все обязательные поля')
+            return redirect('create_room', floor_id=floor_id)
+        
+        room = Room.objects.create(
+            floor=floor,
+            number=number,
+            name=name
+        )
+        messages.success(request, f'Кабинет {number} создан')
+        return redirect('floor_list')
+    
+    return render(request, 'core/create_room.html', {'floor': floor})
 
 
 @login_required

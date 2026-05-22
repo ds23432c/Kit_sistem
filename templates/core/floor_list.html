@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block page_title %}Этажи и кабинеты{% endblock %}
 {% block content %}
+<div style="display:flex;gap:12px;margin-bottom:24px">
+  <a href="{% url 'create_floor' %}" class="btn btn-primary"><i data-lucide="plus" width="16" height="16"></i> Добавить этаж</a>
+</div>
+
 {% for building in buildings %}
 <div style="margin-bottom:32px">
   <h2 style="margin-bottom:16px">{{ building.name }}</h2>
@@ -10,6 +14,7 @@
       <h3>Этаж {{ floor.number }}{% if floor.name %} — {{ floor.name }}{% endif %}</h3>
       <div style="display:flex;gap:8px">
         <a href="{% url 'map' %}?floor={{ floor.pk }}" class="btn btn-secondary btn-sm"><i data-lucide="map" width="14" height="14"></i> На карте</a>
+        <a href="{% url 'create_room' floor.pk %}" class="btn btn-secondary btn-sm"><i data-lucide="plus" width="14" height="14"></i> Добавить кабинет</a>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">

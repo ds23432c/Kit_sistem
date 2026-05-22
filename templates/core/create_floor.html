@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block page_title %}Добавить этаж{% endblock %}
+{% block content %}
+<div style="max-width:500px">
+  <a href="{% url 'floor_list' %}" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);margin-bottom:24px;font-size:14px">
+    <i data-lucide="arrow-left" width="16" height="16"></i> Вернуться
+  </a>
+
+  <div class="card">
+    <h2 style="margin-bottom:20px">Создать новый этаж</h2>
+    <form method="POST">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label">Здание *</label>
+        <select name="building" class="form-select" required>
+          <option value="">Выберите здание</option>
+          {% for building in buildings %}
+          <option value="{{ building.pk }}">{{ building.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Номер этажа *</label>
+        <input type="number" name="number" class="form-input" placeholder="Например: 1, 2, 3" min="1" max="100" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Название этажа (опционально)</label>
+        <input type="text" name="name" class="form-input" placeholder="Например: Первый корпус">
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:28px">
+        <button type="submit" class="btn btn-primary"><i data-lucide="plus" width="16" height="16"></i> Создать этаж</button>
+        <a href="{% url 'floor_list' %}" class="btn btn-ghost">Отмена</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
