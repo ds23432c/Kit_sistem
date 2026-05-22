@@ -1,13 +1,30 @@
-import environ
 import os
 from pathlib import Path
 
+try:
+    import environ
+except ImportError:
+    environ = None
+
 BASE_DIR = Path(__file__).resolve().parent.parent
-env = environ.Env(DEBUG=(bool, False))
+
+
+class SimpleEnv:
+    def __call__(self, key, default=None):
+        return os.environ.get(key, default)
+
+    def list(self, key, default=None):
+        value = os.environ.get(key)
+        if value is None:
+            return default if default is not None else []
+        return [item.strip() for item in value.split(',') if item.strip()]
+
+
+env = environ.Env(DEBUG=(bool, False)) if environ else SimpleEnv()
 
 # Read .env if exists (local dev), Railway injects vars directly
 env_file = os.path.join(BASE_DIR, '.env')
-if os.path.isfile(env_file):
+if os.path.isfile(env_file) and environ:
     environ.Env.read_env(env_file)
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key-replace-me-in-production-now')
