@@ -7,9 +7,7 @@
 .map-toolbar { background:white; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); padding:14px 20px; margin-bottom:16px; display:flex; align-items:center; gap:16px; }
 .legend-item { display:flex; align-items:center; gap:6px; font-size:12px; }
 .legend-dot { width:12px; height:12px; border-radius:50%; }
-.room-popup { position:absolute; background:white; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.15); padding:16px; min-width:280px; max-width:340px; z-index:10; display:none; }
-.room-popup.visible { display:block; }
-.room-popup-close { position:absolute; top:8px; right:8px; cursor:pointer; color:#6B7280; }
+#room-info { border:1.5px solid #E5E7EB; }
 </style>
 {% endblock %}
 {% block content %}
@@ -40,15 +38,25 @@
   <div class="map-canvas-wrap">
     <canvas id="map-canvas" height="600"></canvas>
   </div>
-  <div class="room-popup" id="room-popup">
-    <div class="room-popup-close" onclick="closePopup()"><i data-lucide="x" width="16" height="16"></i></div>
-    <h4 id="popup-title" style="margin-bottom:4px"></h4>
-    <div id="popup-number" class="text-secondary" style="font-size:12px;margin-bottom:12px"></div>
-    <div id="popup-equipment" style="font-size:13px;max-height:200px;overflow-y:auto"></div>
-    <div style="margin-top:12px">
-      <a id="popup-link" href="#" class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Открыть кабинет</a>
+</div>
+
+<div id="room-info" style="margin-top:20px;padding:20px;background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <h3 id="info-title" style="margin:0;margin-bottom:4px"></h3>
+      <div id="info-number" class="text-secondary" style="font-size:12px"></div>
     </div>
+    <button onclick="closeInfo()" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);padding:8px">
+      <i data-lucide="x" width="20" height="20"></i>
+    </button>
   </div>
+  
+  <div style="margin-bottom:16px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:12px">Оборудование в кабинете:</div>
+    <div id="info-equipment" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px"></div>
+  </div>
+  
+  <a id="info-link" href="#" class="btn btn-primary"><i data-lucide="arrow-right" width="16" height="16"></i> Открыть кабинет</a>
 </div>
 
 {{ floor_map_data|json_script:"floor-map-data" }}
@@ -67,6 +75,10 @@ const STATUS_COLORS = { green:'#16A34A', red:'#DC2626', yellow:'#D97706', gray:'
 const STATUS_BG = { green:'rgba(22,163,74,.12)', red:'rgba(220,38,38,.12)', yellow:'rgba(217,119,6,.12)', gray:'rgba(156,163,175,.12)' };
 
 let shapes = Array.isArray(floorData.shapes) && floorData.shapes.length ? floorData.shapes : generateDefaultShapes(roomList);
+let selectedShape = null;
+let draggingShape = null;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
 
 function generateDefaultShapes(rooms) {
   const generated = [];
@@ -94,6 +106,7 @@ function generateDefaultShapes(rooms) {
 
 function resizeCanvas() {
   canvas.width = canvas.offsetWidth;
+  drawMap();
 }
 
 function drawMap() {
@@ -116,15 +129,15 @@ function drawMap() {
     ctx.stroke();
   }
 
-  shapes.forEach(shape => drawShape(shape));
+  shapes.forEach(shape => drawShape(shape, shape === selectedShape));
 }
 
-function drawShape(shape) {
+function drawShape(shape, isSelected = false) {
   const color = STATUS_COLORS[shape.status_color] || '#9CA3AF';
   const bg = STATUS_BG[shape.status_color] || 'rgba(156,163,175,.12)';
   ctx.fillStyle = bg;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = isSelected ? '#2E75B6' : color;
+  ctx.lineWidth = isSelected ? 3 : 2;
   ctx.beginPath();
   ctx.roundRect(shape.x, shape.y, shape.w, shape.h, 8);
   ctx.fill();
@@ -139,6 +152,12 @@ function drawShape(shape) {
   ctx.font = '11px Inter,sans-serif';
   ctx.fillText('Каб. ' + (shape.number || ''), shape.x + shape.w / 2, shape.y + shape.h / 2 + 14);
 
+  if (isSelected) {
+    ctx.fillStyle = '#2E75B6';
+    ctx.font = '10px Inter,sans-serif';
+    ctx.fillText('↕️ перетащите', shape.x + shape.w / 2, shape.y + shape.h + 16);
+  }
+
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.arc(shape.x + shape.w - 12, shape.y + 12, 5, 0, Math.PI * 2);
@@ -149,13 +168,18 @@ function getShapeAt(mx, my) {
   return shapes.find(shape => mx >= shape.x && mx <= shape.x + shape.w && my >= shape.y && my <= shape.y + shape.h);
 }
 
-canvas.addEventListener('click', async function(e) {
+canvas.addEventListener('mousedown', function(e) {
   const rect = canvas.getBoundingClientRect();
   const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
   const my = (e.clientY - rect.top) * (canvas.height / rect.height);
   const shape = getShapeAt(mx, my);
-  if (shape && shape.room_id) {
-    await showRoomPopup(shape, e.clientX, e.clientY);
+  
+  if (shape) {
+    selectedShape = shape;
+    draggingShape = shape;
+    dragOffsetX = mx - shape.x;
+    dragOffsetY = my - shape.y;
+    drawMap();
   }
 });
 
@@ -163,44 +187,77 @@ canvas.addEventListener('mousemove', function(e) {
   const rect = canvas.getBoundingClientRect();
   const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
   const my = (e.clientY - rect.top) * (canvas.height / rect.height);
-  canvas.style.cursor = getShapeAt(mx, my) ? 'pointer' : 'default';
+  
+  if (draggingShape) {
+    draggingShape.x = Math.max(0, Math.min(mx - dragOffsetX, canvas.width - draggingShape.w));
+    draggingShape.y = Math.max(0, Math.min(my - dragOffsetY, canvas.height - draggingShape.h));
+    drawMap();
+    canvas.style.cursor = 'grabbing';
+  } else {
+    canvas.style.cursor = getShapeAt(mx, my) ? 'grab' : 'default';
+  }
 });
 
-async function showRoomPopup(shape, cx, cy) {
+canvas.addEventListener('mouseup', function(e) {
+  if (draggingShape && selectedShape) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+    
+    const clickedShape = getShapeAt(mx, my);
+    if (clickedShape === selectedShape) {
+      showRoomInfo(selectedShape);
+    }
+  }
+  draggingShape = null;
+  drawMap();
+});
+
+canvas.addEventListener('click', async function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const shape = getShapeAt(mx, my);
+  if (shape && shape.room_id) {
+    selectedShape = shape;
+    await showRoomInfo(shape);
+  }
+});
+
+async function showRoomInfo(shape) {
   try {
     const response = await fetch('/map/api/room/' + shape.room_id + '/info/');
     const data = await response.json();
-    document.getElementById('popup-title').textContent = data.name;
-    document.getElementById('popup-number').textContent = 'Кабинет ' + data.number;
-    document.getElementById('popup-link').href = data.url;
+    
+    document.getElementById('info-title').textContent = data.name;
+    document.getElementById('info-number').textContent = 'Кабинет № ' + data.number;
+    document.getElementById('info-link').href = data.url;
 
-    const eqHtml = (data.equipment || []).map(e =>
-      '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #F3F4F6">' +
-      '<span>' + e.reg_number + ' ' + e.name + '</span>' +
-      '<span class="badge badge-' + (e.condition === 'ok' ? 'green' : e.condition === 'broken' ? 'red' : e.condition === 'repair' ? 'yellow' : 'gray') + '" style="font-size:10px">' + e.condition_display + '</span>' +
-      '</div>'
-    ).join('') || '<div class="text-secondary" style="font-size:13px">Оборудование не добавлено</div>';
+    const eqHtml = (data.equipment && data.equipment.length > 0) ? 
+      data.equipment.map(e =>
+        '<div style="padding:12px;border:1px solid #E5E7EB;border-radius:8px;background:#F9FAFB">' +
+        '<div style="font-weight:500;margin-bottom:6px">' + e.reg_number + ' ' + e.name + '</div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:12px">' +
+        '<span class="text-secondary">' + e.name + '</span>' +
+        '<span class="badge badge-' + (e.condition === 'ok' ? 'green' : e.condition === 'broken' ? 'red' : e.condition === 'repair' ? 'yellow' : 'gray') + '">' + e.condition_display + '</span>' +
+        '</div>' +
+        '</div>'
+      ).join('') :
+      '<div class="text-secondary" style="padding:12px;text-align:center">Оборудование не добавлено</div>';
 
-    document.getElementById('popup-equipment').innerHTML = eqHtml;
-    const popup = document.getElementById('room-popup');
-    popup.style.left = Math.min(cx + 10, window.innerWidth - 360) + 'px';
-    popup.style.top = Math.max(20, cy - 80) + 'px';
-    popup.classList.add('visible');
+    document.getElementById('info-equipment').innerHTML = eqHtml;
+    document.getElementById('room-info').style.display = 'block';
     lucide.createIcons();
   } catch (error) {
     console.error(error);
   }
 }
 
-function closePopup() {
-  document.getElementById('room-popup').classList.remove('visible');
+function closeInfo() {
+  document.getElementById('room-info').style.display = 'none';
+  selectedShape = null;
+  drawMap();
 }
-
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('#room-popup') && !e.target.closest('#map-canvas')) {
-    closePopup();
-  }
-});
 
 document.getElementById('floor-select')?.addEventListener('change', function() {
   window.location = this.selectedOptions[0].dataset.url;
@@ -210,7 +267,6 @@ resizeCanvas();
 drawMap();
 window.addEventListener('resize', function() {
   resizeCanvas();
-  drawMap();
 });
 </script>
 {% endblock %}
