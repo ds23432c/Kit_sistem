@@ -29,15 +29,28 @@ def map_editor(request):
         from django.shortcuts import redirect
         return redirect('map')
     buildings = Building.objects.prefetch_related('floors').all()
-    rooms = Room.objects.select_related('floor').all()
     floor_id = request.GET.get('floor')
     selected_floor = None
+    floor_rooms = []
+    floor_map_data = {}
     if floor_id:
         selected_floor = get_object_or_404(Floor, pk=floor_id)
+        floor_rooms = selected_floor.rooms.select_related('floor').all()
+        floor_map_data = selected_floor.map_data or {}
     return render(request, 'map_builder/editor.html', {
         'buildings': buildings,
-        'rooms': rooms,
         'selected_floor': selected_floor,
+        'floor_rooms': floor_rooms,
+        'floor_rooms_json': json.dumps([
+            {
+                'id': room.id,
+                'name': room.name,
+                'number': room.number,
+                'status_color': room.status_color,
+            }
+            for room in floor_rooms
+        ], ensure_ascii=False),
+        'floor_map_json': json.dumps(floor_map_data, ensure_ascii=False),
     })
 
 

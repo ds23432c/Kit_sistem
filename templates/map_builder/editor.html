@@ -15,12 +15,13 @@
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
   <select class="form-select" id="floor-select" style="min-width:200px">
     {% for building in buildings %}{% for floor in building.floors.all %}
-    <option value="{{ floor.pk }}" {% if selected_floor.pk == floor.pk %}selected{% endif %} data-url="?floor={{ floor.pk }}">{{ building.name }} — Этаж {{ floor.number }}</option>
+    <option value="{{ floor.pk }}" {% if selected_floor and selected_floor.pk == floor.pk %}selected{% endif %} data-url="?floor={{ floor.pk }}">{{ building.name }} — Этаж {{ floor.number }}</option>
     {% endfor %}{% endfor %}
   </select>
   <button class="btn btn-primary" onclick="saveMap()"><i data-lucide="save" width="16" height="16"></i> Сохранить</button>
   <a href="{% url 'map' %}{% if selected_floor %}?floor={{ selected_floor.pk }}{% endif %}" class="btn btn-secondary">Просмотр</a>
 </div>
+
 <div class="editor-wrap">
   <div class="editor-sidebar">
     <div class="card">
@@ -34,35 +35,81 @@
     <div class="card">
       <div style="font-weight:600;margin-bottom:12px;font-size:13px">Кабинеты</div>
       <div style="display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto">
-        {% for room in rooms %}{% if selected_floor and room.floor == selected_floor %}
-        <div style="padding:8px;border-radius:6px;border:1.5px solid #E5E7EB;cursor:pointer;font-size:12px;transition:border-color .15s" onclick="attachRoom({{ room.pk }}, '{{ room.name }}', '{{ room.number }}')" title="Привязать к фигуре">
+        {% for room in floor_rooms %}
+        <div style="padding:8px;border-radius:6px;border:1.5px solid #E5E7EB;cursor:pointer;font-size:12px;transition:border-color .15s" onclick="attachRoom({{ room.pk }}, '{{ room.name|escapejs }}', '{{ room.number|escapejs }}')" title="Привязать к фигуре">
           <div style="font-weight:500">{{ room.name }}</div>
           <div class="text-secondary">{{ room.number }}</div>
         </div>
-        {% endif %}{% endfor %}
+        {% empty %}
+        <div class="text-secondary" style="font-size:12px">Сначала выберите этаж</div>
+        {% endfor %}
       </div>
     </div>
     <div class="card" id="shape-props" style="display:none">
       <div style="font-weight:600;margin-bottom:12px;font-size:13px">Свойства</div>
-      <div class="form-group"><label class="form-label" style="font-size:12px">Название</label><input type="text" id="prop-name" class="form-input" style="font-size:12px"></div>
+      <div class="form-group">
+        <label class="form-label" style="font-size:12px">Название</label>
+        <input type="text" id="prop-name" class="form-input" style="font-size:12px">
+      </div>
     </div>
   </div>
+
   <div class="editor-main">
     <div style="flex:1;background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden">
       <canvas id="editor-canvas"></canvas>
     </div>
   </div>
 </div>
+
+<div id="editor-data"
+     data-floor-id="{% if selected_floor %}{{ selected_floor.pk }}{% endif %}"
+     data-floor-map="{{ floor_map_json|escape }}"
+     data-floor-rooms="{{ floor_rooms_json|escape }}"></div>
 {% endblock %}
 {% block extra_js %}
 <script>
 const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
-const FLOOR_ID = {{ selected_floor.pk|default:'null' }};
+const editorData = document.getElementById('editor-data');
+const FLOOR_ID = editorData && editorData.dataset.floorId ? Number(editorData.dataset.floorId) : null;
+const floorData = editorData && editorData.dataset.floorMap ? JSON.parse(editorData.dataset.floorMap) : {};
+const roomList = editorData && editorData.dataset.floorRooms ? JSON.parse(editorData.dataset.floorRooms) : [];
+
 canvas.width = canvas.parentElement.offsetWidth;
 canvas.height = canvas.parentElement.offsetHeight;
 
-let shapes = [], selected = null, tool = 'rect', drawing = false, startX, startY, tempShape;
+function generateDefaultShapes(roomItems) {
+  const generated = [];
+  let col = 0;
+  let row = 0;
+  roomItems.forEach(room => {
+    if (col > 3) {
+      col = 0;
+      row += 1;
+    }
+    generated.push({
+      id: room.id,
+      x: 20 + col * 190,
+      y: 20 + row * 120,
+      w: 170,
+      h: 100,
+      name: room.name,
+      number: room.number,
+      room_id: room.id,
+      status_color: room.status_color || 'gray'
+    });
+    col += 1;
+  });
+  return generated;
+}
+
+let shapes = Array.isArray(floorData.shapes) && floorData.shapes.length ? floorData.shapes : generateDefaultShapes(roomList);
+let selected = null;
+let tool = 'rect';
+let drawing = false;
+let startX;
+let startY;
+let tempShape = null;
 
 const STATUS_COLORS = { green:'#16A34A', red:'#DC2626', yellow:'#D97706', gray:'#9CA3AF' };
 const STATUS_BG = { green:'rgba(22,163,74,.12)', red:'rgba(220,38,38,.12)', yellow:'rgba(217,119,6,.12)', gray:'rgba(156,163,175,.15)' };
@@ -75,89 +122,164 @@ function setTool(t) {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#F9FAFB'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = '#E5E7EB'; ctx.lineWidth = 0.5;
-  for(let x=0; x<canvas.width; x+=40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
-  for(let y=0; y<canvas.height; y+=40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+  ctx.fillStyle = '#F9FAFB';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#E5E7EB';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < canvas.width; x += 40) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += 40) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
   shapes.forEach(s => drawShape(s, s === selected));
-  if(tempShape) {
-    ctx.strokeStyle = '#2E75B6'; ctx.lineWidth = 2; ctx.setLineDash([5,5]);
+  if (tempShape) {
+    ctx.strokeStyle = '#2E75B6';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
     ctx.strokeRect(tempShape.x, tempShape.y, tempShape.w, tempShape.h);
     ctx.setLineDash([]);
   }
 }
 
-function drawShape(shape, sel=false) {
+function drawShape(shape, sel = false) {
   const c = STATUS_COLORS[shape.status_color] || '#9CA3AF';
   const bg = STATUS_BG[shape.status_color] || 'rgba(156,163,175,.12)';
-  ctx.fillStyle = bg; ctx.strokeStyle = sel ? '#2E75B6' : c; ctx.lineWidth = sel ? 3 : 2;
-  ctx.beginPath(); ctx.roundRect(shape.x, shape.y, shape.w, shape.h, 8); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#1A1A2E'; ctx.font = 'bold 13px Inter,sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText(shape.name || 'Новый кабинет', shape.x+shape.w/2, shape.y+shape.h/2 - 4);
-  ctx.fillStyle = '#6B7280'; ctx.font = '11px Inter,sans-serif';
-  if(shape.number) ctx.fillText('Каб. ' + shape.number, shape.x+shape.w/2, shape.y+shape.h/2+14);
-  if(sel) { ctx.fillStyle = '#2E75B6'; ctx.beginPath(); ctx.arc(shape.x+shape.w/2, shape.y+shape.h-8, 3, 0, Math.PI*2); ctx.fill(); }
+  ctx.fillStyle = bg;
+  ctx.strokeStyle = sel ? '#2E75B6' : c;
+  ctx.lineWidth = sel ? 3 : 2;
+  ctx.beginPath();
+  ctx.roundRect(shape.x, shape.y, shape.w, shape.h, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#1A1A2E';
+  ctx.font = 'bold 13px Inter,sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(shape.name || 'Новый кабинет', shape.x + shape.w / 2, shape.y + shape.h / 2 - 4);
+  ctx.fillStyle = '#6B7280';
+  ctx.font = '11px Inter,sans-serif';
+  if (shape.number) ctx.fillText('Каб. ' + shape.number, shape.x + shape.w / 2, shape.y + shape.h / 2 + 14);
+  if (sel) {
+    ctx.fillStyle = '#2E75B6';
+    ctx.beginPath();
+    ctx.arc(shape.x + shape.w / 2, shape.y + shape.h - 8, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
 
 canvas.addEventListener('mousedown', e => {
-  const {offsetX:mx, offsetY:my} = e;
-  if(tool === 'rect') { drawing=true; startX=mx; startY=my; }
-  else if(tool === 'select') {
-    selected = [...shapes].reverse().find(s => mx>=s.x && mx<=s.x+s.w && my>=s.y && my<=s.y+s.h) || null;
-    if(selected) { document.getElementById('shape-props').style.display='block'; document.getElementById('prop-name').value=selected.name||''; }
-    else document.getElementById('shape-props').style.display='none';
+  const { offsetX: mx, offsetY: my } = e;
+  if (tool === 'rect') {
+    drawing = true;
+    startX = mx;
+    startY = my;
+  } else if (tool === 'select') {
+    selected = [...shapes].reverse().find(s => mx >= s.x && mx <= s.x + s.w && my >= s.y && my <= s.y + s.h) || null;
+    if (selected) {
+      document.getElementById('shape-props').style.display = 'block';
+      document.getElementById('prop-name').value = selected.name || '';
+    } else {
+      document.getElementById('shape-props').style.display = 'none';
+    }
     draw();
   }
 });
 
 canvas.addEventListener('mousemove', e => {
-  if(!drawing) return;
-  const {offsetX:mx, offsetY:my} = e;
-  tempShape = {x:Math.min(startX,mx), y:Math.min(startY,my), w:Math.abs(mx-startX), h:Math.abs(my-startY)};
+  if (!drawing) return;
+  const { offsetX: mx, offsetY: my } = e;
+  tempShape = {
+    x: Math.min(startX, mx),
+    y: Math.min(startY, my),
+    w: Math.abs(mx - startX),
+    h: Math.abs(my - startY)
+  };
   draw();
 });
 
 canvas.addEventListener('mouseup', e => {
-  if(!drawing) return; drawing=false;
-  const {offsetX:mx, offsetY:my} = e;
-  if(Math.abs(mx-startX) > 20 && Math.abs(my-startY) > 20) {
-    const s = {id:Date.now(), x:Math.min(startX,mx), y:Math.min(startY,my), w:Math.abs(mx-startX), h:Math.abs(my-startY), name:'', number:'', room_id:null, status_color:'gray'};
-    shapes.push(s); selected=s; tool='select';
-    document.getElementById('shape-props').style.display='block';
-    document.getElementById('prop-name').value='';
+  if (!drawing) return;
+  drawing = false;
+  const { offsetX: mx, offsetY: my } = e;
+  if (Math.abs(mx - startX) > 20 && Math.abs(my - startY) > 20) {
+    const s = {
+      id: Date.now(),
+      x: Math.min(startX, mx),
+      y: Math.min(startY, my),
+      w: Math.abs(mx - startX),
+      h: Math.abs(my - startY),
+      name: '',
+      number: '',
+      room_id: null,
+      status_color: 'gray'
+    };
+    shapes.push(s);
+    selected = s;
+    tool = 'select';
+    document.getElementById('shape-props').style.display = 'block';
+    document.getElementById('prop-name').value = '';
+    setTool('select');
   }
-  tempShape=null; draw();
+  tempShape = null;
+  draw();
 });
 
-document.getElementById('prop-name')?.addEventListener('input', function(){
-  if(selected) { selected.name=this.value; draw(); }
+document.getElementById('prop-name')?.addEventListener('input', function() {
+  if (selected) {
+    selected.name = this.value;
+    draw();
+  }
 });
 
 function attachRoom(id, name, number) {
-  if(selected) { selected.room_id=id; selected.name=name; selected.number=number; selected.status_color='green'; draw(); }
-  else alert('Сначала выберите фигуру инструментом "Выделение"');
+  if (selected) {
+    selected.room_id = id;
+    selected.name = name;
+    selected.number = number;
+    selected.status_color = 'green';
+    draw();
+  } else {
+    alert('Сначала выберите фигуру инструментом "Выделение"');
+  }
 }
 
 function deleteSelected() {
-  if(!selected) return;
-  shapes = shapes.filter(s=>s!==selected); selected=null;
-  document.getElementById('shape-props').style.display='none'; draw();
+  if (!selected) return;
+  shapes = shapes.filter(s => s !== selected);
+  selected = null;
+  document.getElementById('shape-props').style.display = 'none';
+  draw();
 }
 
 async function saveMap() {
-  if(!FLOOR_ID) return alert('Выберите этаж');
-  const r = await fetch('/map/api/floor/'+FLOOR_ID+'/save/', {
-    method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
-    body:JSON.stringify({map_data:{shapes}, shapes})
+  if (!FLOOR_ID) return alert('Выберите этаж');
+  const r = await fetch('/map/api/floor/' + FLOOR_ID + '/save/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({ map_data: { shapes }, shapes })
   });
-  if(r.ok) { const data=await r.json(); alert(data.ok ? 'Сохранено!' : 'Ошибка'); }
+  if (r.ok) {
+    const data = await r.json();
+    alert(data.ok ? 'Сохранено!' : 'Ошибка');
+  }
 }
 
 function getCookie(name) {
-  return document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith(name+'='))?.split('=')[1] || '';
+  return document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith(name + '='))?.split('=')[1] || '';
 }
 
 draw();
-document.getElementById('floor-select')?.addEventListener('change', function(){window.location=this.selectedOptions[0].dataset.url;});
+document.getElementById('floor-select')?.addEventListener('change', function() {
+  window.location = this.selectedOptions[0].dataset.url;
+});
 </script>
 {% endblock %}
