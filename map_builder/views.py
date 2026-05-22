@@ -13,13 +13,29 @@ def map_view(request):
     buildings = Building.objects.prefetch_related('floors').all()
     floor_id = request.GET.get('floor')
     selected_floor = None
+    floor_rooms = []
+    floor_map_data = {}
     if floor_id:
         selected_floor = get_object_or_404(Floor, pk=floor_id)
     elif buildings.exists() and buildings.first().floors.exists():
         selected_floor = buildings.first().floors.first()
+    if selected_floor:
+        floor_rooms = selected_floor.rooms.select_related('floor').all()
+        floor_map_data = selected_floor.map_data or {}
     return render(request, 'map_builder/map.html', {
         'buildings': buildings,
         'selected_floor': selected_floor,
+        'floor_rooms': floor_rooms,
+        'floor_rooms_data': [
+            {
+                'id': room.id,
+                'name': room.name,
+                'number': room.number,
+                'status_color': room.status_color,
+            }
+            for room in floor_rooms
+        ],
+        'floor_map_data': floor_map_data,
     })
 
 
@@ -41,7 +57,7 @@ def map_editor(request):
         'buildings': buildings,
         'selected_floor': selected_floor,
         'floor_rooms': floor_rooms,
-        'floor_rooms_json': json.dumps([
+        'floor_rooms_data': [
             {
                 'id': room.id,
                 'name': room.name,
@@ -49,8 +65,8 @@ def map_editor(request):
                 'status_color': room.status_color,
             }
             for room in floor_rooms
-        ], ensure_ascii=False),
-        'floor_map_json': json.dumps(floor_map_data, ensure_ascii=False),
+        ],
+        'floor_map_data': floor_map_data,
     })
 
 

@@ -62,18 +62,20 @@
 </div>
 
 <div id="editor-data"
-     data-floor-id="{% if selected_floor %}{{ selected_floor.pk }}{% endif %}"
-     data-floor-map="{{ floor_map_json|escape }}"
-     data-floor-rooms="{{ floor_rooms_json|escape }}"></div>
+     data-floor-id="{% if selected_floor %}{{ selected_floor.pk }}{% endif %}"></div>
+{{ floor_map_data|json_script:"floor-map-data" }}
+{{ floor_rooms_data|json_script:"floor-rooms-data" }}
 {% endblock %}
 {% block extra_js %}
 <script>
 const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
 const editorData = document.getElementById('editor-data');
-const FLOOR_ID = editorData && editorData.dataset.floorId ? Number(editorData.dataset.floorId) : null;
-const floorData = editorData && editorData.dataset.floorMap ? JSON.parse(editorData.dataset.floorMap) : {};
-const roomList = editorData && editorData.dataset.floorRooms ? JSON.parse(editorData.dataset.floorRooms) : [];
+const FLOOR_ID = editorData ? Number(editorData.dataset.floorId) : null;
+const floorMapNode = document.getElementById('floor-map-data');
+const floorRoomsNode = document.getElementById('floor-rooms-data');
+const floorData = floorMapNode ? JSON.parse(floorMapNode.textContent || '{}') : {};
+const roomList = floorRoomsNode ? JSON.parse(floorRoomsNode.textContent || '[]') : [];
 
 canvas.width = canvas.parentElement.offsetWidth;
 canvas.height = canvas.parentElement.offsetHeight;
